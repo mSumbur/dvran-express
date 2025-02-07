@@ -7,7 +7,7 @@ const morgan = require("morgan");
 // env
 const dotenv = require('dotenv')
 dotenv.config({
-  path: path.resolve(__dirname, './.env.' + process.env.NODE_ENV)
+  path: path.resolve(__dirname, './env/.' + process.env.NODE_ENV)
 })
 
 const { initDB } = require('./src/db')
