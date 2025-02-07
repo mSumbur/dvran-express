@@ -1,7 +1,6 @@
 const handleRes = require('../../middleware/handleRes')
 const { createGalpicTextImage } = require('../../services/tool')
 const qiniu = require("qiniu")
-
 const router = require('express').Router()
 
 /**
@@ -11,7 +10,6 @@ router.post('/qiniutoken', async (req, res, next) => {
     // 生成鉴权对象 mac
     const accessKey = process.env.QINIU_AK
     const secretKey = process.env.QINIU_SK
-    console.log(accessKey, secretKey)
     const mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
     // 简单上传凭证
     const expires = 7200
@@ -36,5 +34,12 @@ router.post('/text', handleRes(async (req, res, next) => {
     // res.setHeader('Content-Type', 'image/png')
     // result.pipe(res)
 }))
+
+router.get('/env-value', async (req, res, next) => {
+    res.json({
+        code: 200,
+        data: process.env
+    })
+})
 
 module.exports = router
