@@ -33,7 +33,7 @@ jobs:
           # 使用 SSH 连接到服务器并部署
           ssh -i private_key.pem -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP <<EOF
             cd $DEPLOY_DIR || exit 1
-            git pull origin main || exit 1  # 拉取最新代码
-            npm install || exit 1  # 安装依赖
+            git pull origin main || exit 2  # 拉取最新代码
+            npm install || exit 3  # 安装依赖
             pm2 restart app || pm2 start index.js --name dvran-express  # 使用 pm2 重启应用
           EOF
