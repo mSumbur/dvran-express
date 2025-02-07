@@ -7,7 +7,7 @@ const morgan = require("morgan");
 // env
 const dotenv = require('dotenv')
 dotenv.config({
-  path: path.resolve(__dirname, './env/.' + process.env.NODE_ENV)
+  path: path.resolve(__dirname, './env/.env.' + process.env.NODE_ENV)
 })
 
 const { initDB } = require('./src/db')
@@ -47,20 +47,11 @@ app.use(function(err, req, res, next) {
   res.send(res.locals)
 })
 
-// 小程序调用，获取微信 Open ID
-// app.get("/api/wx_openid", async (req, res) => {
-//   if (req.headers["x-wx-source"]) {
-//     res.send(req.headers["x-wx-openid"])
-//   }
-// })
-
 const port = process.env.PORT || 3003
 
 async function bootstrap() {
   await initDB()
-  app.listen(port, () => {
-    console.log("start success ", port)
-  })
+  app.listen(port, () => console.log("start success ", port))
 }
 
 bootstrap()
