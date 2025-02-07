@@ -47,7 +47,7 @@ app.use(function(err, req, res, next) {
   res.send(res.locals)
 })
 
-const port = process.env.PORT || 3003
+const port = process.env.PORT || 3333
 
 async function bootstrap() {
   await initDB()

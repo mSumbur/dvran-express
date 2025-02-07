@@ -35,11 +35,4 @@ router.post('/text', handleRes(async (req, res, next) => {
     // result.pipe(res)
 }))
 
-router.get('/env-value', async (req, res, next) => {
-    res.json({
-        code: 200,
-        data: process.env
-    })
-})
-
 module.exports = router
