@@ -1,13 +1,11 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
-
-name: Node.js Package
+name: dvran express
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - main
 
-jobs:
+jobs: 
   build:
     runs-on: ubuntu-latest
     steps:
@@ -15,19 +13,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
-      - run: npm test
-
-  publish-npm:
-    needs: build
+      - run: npm install
+      # - run: npm test
+  
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm publish
+      # Deploy to server
+      - name: Deploy to server
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_DIR }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          # 使用 SSH 连接到服务器并部署
+          ssh -i private_key.pem -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP <<EOF
+            cd $DEPLOY_DIR || exit 1
+            git pull origin main || exit 1  # 拉取最新代码
+            npm install || exit 1  # 安装依赖
+            pm2 restart app || pm2 start index.js --name dvran-express  # 使用 pm2 重启应用
+          EOF
