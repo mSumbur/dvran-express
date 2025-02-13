@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(cors())
 app.use(morgan("tiny"))
-app.use(jwtAuth)
+// app.use(jwtAuth)
 
 // 引入路由
 const routesPath = path.join(__dirname, './src/routes/api')
@@ -50,7 +50,7 @@ app.use(function(err, req, res, next) {
 const port = process.env.PORT || 3333
 
 async function bootstrap() {
-  await initDB()
+  // await initDB()
   app.listen(port, () => console.log("start success ", port))
 }
 

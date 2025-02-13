@@ -1,5 +1,5 @@
 const { User } = require("../db/model")
-const nanoid = require('nanoid')
+const { nanoid } = require('nanoid')
 
 /**
  * 创建用户
@@ -7,6 +7,21 @@ const nanoid = require('nanoid')
  * @returns 
  */
 async function createUser(username) {
+    const avatarList = [
+        'changjinglu',
+        'hudie',
+        'laohu',
+        'luotuo',
+        'mao',
+        'mianyang',
+        'milu',
+        'nainiu',
+        'songshu',
+        'xiniu',
+        'xiongmao',
+        'yangtuo'
+    ]
+
     const user = await User.create({
         username,
         nickname: username,
@@ -18,11 +33,10 @@ async function createUser(username) {
  * 使用openid创建用户
  * @param {*} openid 
  */
-async function createUserByOpenid(openid, unionid) {
+async function createUserByOpenid(openid) {
     const userCount = await User.count()
     const user = await User.create({
         openid,
-        unionid,
         username: nanoid(),
         nickname: 'ᠬᠡᠷᠡᠭ᠍ᠯᠡᠭ᠍ᠴᠢ ' + userCount
     })
@@ -58,9 +72,12 @@ async function findUserById(id) {
  * @param {*} id 
  * @param {*} value 
  */
-async function updateUserById(id, value) {
-    const result = await User.update(value, { id })
-    return result
+async function updateUserById(id, value) {    
+    const [updatedCount, updatedUsers] = await User.update(value, {
+        where: { id },
+        returning: true, // 返回更新后的记录
+    })    
+    return { updatedCount, updatedUsers }    
 }
 
 module.exports = {

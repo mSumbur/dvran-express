@@ -33,15 +33,19 @@ router.delete('/:id', (req, res) => {
 router.get('/recommend', pageQuery, async (req, res, next) => {
     const { page, count } = req.query
     const result = await findTagsByRecommend(req.query)
+    const defaultData = [
+        { id: 'd1', name: '关注', api: '/article/recommend' },
+        { id: 'd2', name: '推荐', api: '/article/recommend' },
+    ]
     res.json({
         code: 200,
         page,
         count,
         total: result.count,
-        data: result.rows.map(item => ({
+        data: defaultData.concat(result.rows.map(item => ({
             ...item.dataValues,
             api: '/article/tag/' + item.dataValues.id
-        }))
+        })))
     })
 })
 

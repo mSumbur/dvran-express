@@ -1,6 +1,8 @@
 const createHttpError = require('http-errors');
-const { Article, Tag, Media, ArticleTag } = require('../db/model');
+const { Article, Tag, Media, ArticleTag, User, ArticleMedia, ArticleLike } = require('../db/model');
 const { createTag } = require('./tag');
+const { createMedia } = require('./media');
+const { sequelize } = require('../db/seq');
 
 /**
  * 创建文章
@@ -8,13 +10,19 @@ const { createTag } = require('./tag');
  * @returns 
  */
 async function createArticle({
-    text, openid, id, medias = [], tagIds = [], tagNames = []
+    id,
+    text, 
+    openid, 
+    userId,    
+    media = [],
+    tagIds = [], 
+    tagNames = []
 }) {
     const article = await Article.create({
         title: text.substring(0, 100),
         text,
         openid,
-        userId: id
+        userId: id || userId
     })
 
     // 处理话题(话题名)
@@ -40,14 +48,14 @@ async function createArticle({
     await article.setTags(tagInstances)
 
     // 处理媒体
-    // const mediaInstances = []
-    // for (let media of medias) {
-    //   if (!media.id) {
-    //     media = await this.mediaService.create(item)
-    //   }
-    //   mediaList.push(item) 
-    // }
-    // await article.setTags(mediaInstances)
+    const mediaInstances = []
+    for (let item of media) {
+      if (!item.id) {
+        item = await createMedia(item)
+      }
+      mediaInstances.push(item)
+    }
+    await article.setMedia(mediaInstances)
 
     return article.dataValues
 }
@@ -75,7 +83,7 @@ async function findArticlesByRecommend(pageQuery) {
         order: [['createdAt', 'DESC']],
         limit: count,
         offset: offset,
-        include: [Tag, Media]
+        include: [Tag, Media, User]
     })
     return result
 }
@@ -86,9 +94,22 @@ async function findArticlesByTagId(tagId, pageQuery) {
     const result = await Article.findAndCountAll({        
         order: [['createdAt', 'DESC']],
         limit: count,
-        offset: offset        
+        offset: offset,
+        include: [Media, Tag, User] 
     })
     return result
+}
+
+async function findArticleById(id) {
+    return await Article.findByPk(id, {                
+        attributes: [      
+            // 获取所有字段
+            ...Object.keys(Article.getAttributes()),
+            [sequelize.literal('(SELECT COUNT(*) FROM article_likes WHERE article_likes.articleId = article.id)'), 'likeCount'],
+            [sequelize.literal('(SELECT COUNT(*) FROM article_collects WHERE article_collects.articleId = article.id)'), 'collectCount']
+        ],        
+        include: [Media, Tag, User]
+    })    
 }
 
 module.exports = {
@@ -96,5 +117,6 @@ module.exports = {
     updateArticle,
     deleteArticle,
     findArticlesByRecommend,
-    findArticlesByTagId
+    findArticlesByTagId,
+    findArticleById
 }

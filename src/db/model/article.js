@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize')
 const { sequelize } = require('../seq')
+const User = require('./user')
 
 const Article = sequelize.define('article', {
     title: {
@@ -30,5 +31,8 @@ const Article = sequelize.define('article', {
     timestamps: true,
     paranoid: true
 })
+
+User.hasMany(Article)
+Article.belongsTo(User)
 
 module.exports = Article

@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize')
 const { sequelize } = require('../seq')
 
 const Media = sequelize.define('media', {
-    type: DataTypes.ENUM('image', 'video', 'audio'),
+    type: DataTypes.STRING,
     hash: DataTypes.STRING,    
     key: DataTypes.STRING,
     url: DataTypes.STRING,
