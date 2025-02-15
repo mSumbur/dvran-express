@@ -9,7 +9,7 @@
 // } = require('./model')
 import { User,
     UserFollow,
-    Article, Tag, Media, Message,
+    Article, Tag, Media, Message, Comment,
     ArticleTag,
     ArticleMedia,
     ArticleLike,
@@ -22,6 +22,7 @@ export async function initDB() {
     await Tag.sync({ alter: true })
     await Media.sync({ alter: true })
     await Message.sync({ alter: true })
+    await Comment.sync({ alter: true })
     await ArticleTag.sync({ alter: true })
     await ArticleMedia.sync({ alter: true })
     await ArticleLike.sync({ alter: true })

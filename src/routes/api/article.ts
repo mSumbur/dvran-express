@@ -14,7 +14,7 @@ const router = express.Router()
 /**
  * 创建文章
  */
-router.post('/', jwtAuth, validate([
+router.post('/article', jwtAuth, validate([
     body('id').optional().isString().trim().withMessage('id must be a string'),
     body('text').isString().trim().withMessage('text must be a string'),    
     body('media').optional().isArray(),
@@ -34,7 +34,7 @@ router.post('/', jwtAuth, validate([
 /**
  * 更新文章
  */
-router.patch('/:id', jwtAuth, validate([
+router.patch('/article/:id', jwtAuth, validate([
     body('text').optional().isString().trim().withMessage('text must be a string'),
     body('tagNames').optional().isArray(),
     body('tagNames.*').optional().isString().withMessage('Each tagName must be a string')
@@ -49,7 +49,7 @@ router.patch('/:id', jwtAuth, validate([
 /**
  * 删除文章
  */
-router.delete('/:id', jwtAuth, async (req, res) => {
+router.delete('/article/:id', jwtAuth, async (req, res) => {
     const result = await deleteArticle(parseInt(req.params.id))
     res.json({
         code: 200,
@@ -60,7 +60,7 @@ router.delete('/:id', jwtAuth, async (req, res) => {
 /**
  * 获取推荐列表
  */
-router.get('/recommend', pageQuery, async (req, res, next) => {
+router.get('/article/recommend', pageQuery, async (req, res, next) => {
     const query: IPageQuery = req.query as unknown as IPageQuery
     const result = await findArticlesByRecommend(query)
     res.json({
@@ -75,7 +75,7 @@ router.get('/recommend', pageQuery, async (req, res, next) => {
 /**
  * 获取指定标签的文章列表
  */
-router.get('/tag/:id', pageQuery, async (req, res) => {
+router.get('/article/tag/:id', pageQuery, async (req, res) => {
     const query: IPageQuery = req.query as unknown as IPageQuery
     const result = await findArticlesByTagId(parseInt(req.params.id), query)
     res.json({

@@ -8,23 +8,25 @@ import { nanoid } from "nanoid"
  */
 export async function createUser(username: string) {
     const avatarList = [
-        'changjinglu',
-        'hudie',
-        'laohu',
-        'luotuo',
-        'mao',
-        'mianyang',
-        'milu',
-        'nainiu',
-        'songshu',
-        'xiniu',
-        'xiongmao',
-        'yangtuo'
+        '/dvran-avatar/changjinglu.png',
+        '/dvran-avatar/hudie.png',
+        '/dvran-avatar/laohu.png',
+        '/dvran-avatar/luotuo.png',
+        '/dvran-avatar/mao.png',
+        '/dvran-avatar/mianyang.png',
+        '/dvran-avatar/milu.png',
+        '/dvran-avatar/nainiu.png',
+        '/dvran-avatar/songshu.png',
+        '/dvran-avatar/xiniu.png',
+        '/dvran-avatar/xiongmao.png',
+        '/dvran-avatar/yangtu.png'
     ]
-
+    const randomIndex = Math.floor(Math.random() * (avatarList.length - 1 - 0 + 1)) + 0;
+    const avatar = avatarList[randomIndex]
     const user = await User.create({
         username,
         nickname: username,
+        avatar: process.env?.MEDIA_DOMAIN + avatar,
     })
     return user
 }
@@ -33,12 +35,29 @@ export async function createUser(username: string) {
  * 使用openid创建用户
  * @param {*} openid 
  */
-export async function createUserByOpenid(openid: string) {
+export async function createUserByOpenid(openid: string): Promise<any> {
+    const avatarList = [
+        '/dvran-avatar/changjinglu.png',
+        '/dvran-avatar/hudie.png',
+        '/dvran-avatar/laohu.png',
+        '/dvran-avatar/luotuo.png',
+        '/dvran-avatar/mao.png',
+        '/dvran-avatar/mianyang.png',
+        '/dvran-avatar/milu.png',
+        '/dvran-avatar/nainiu.png',
+        '/dvran-avatar/songshu.png',
+        '/dvran-avatar/xiniu.png',
+        '/dvran-avatar/xiongmao.png',
+        '/dvran-avatar/yangtu.png'
+    ]
+    const randomIndex = Math.floor(Math.random() * (avatarList.length - 1 - 0 + 1)) + 0;
+    const avatar = avatarList[randomIndex]
     const userCount = await User.count()
     const user = await User.create({
         openid,
         username: nanoid(),
-        nickname: 'ᠬᠡᠷᠡᠭ᠍ᠯᠡᠭ᠍ᠴᠢ ' + userCount
+        nickname: 'ᠬᠡᠷᠡᠭ᠍ᠯᠡᠭ᠍ᠴᠢ ' + userCount,
+        avatar: process.env?.MEDIA_DOMAIN + avatar
     })
     return user
 }

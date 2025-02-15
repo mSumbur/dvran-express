@@ -12,9 +12,9 @@ const router = express.Router()
 router.get('/current', jwtAuth, async (req, res, next) => {
     const { userId, openid } = req.auth
     let result = await findUserById(userId)
-    if (!result) {
-        result = await createUserByOpenid(openid)
-    }
+    // if (!result) {
+    //     result = await createUserByOpenid(openid)
+    // }
     res.json({
         code: 200,
         data: result

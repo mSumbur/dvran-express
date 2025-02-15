@@ -22,7 +22,7 @@ router.post('/weapp/login', async (req, res) => {
     }
 
     // 查询用户
-    let user = await findUserByOpenid(result.data.openid)
+    let user: any = await findUserByOpenid(result.data.openid)
     console.log(result.data, user)
     // 没有当前用户记录时新建用户
     if (!user) {
@@ -30,19 +30,20 @@ router.post('/weapp/login', async (req, res) => {
     }
 
     const jwtSecret = process.env.JWT_SECRET || ''
-    // const token = jwt.sign(
-    //     { userId: user.id, openid: user.openid }, 
-    //     jwtSecret,
-    //     { expiresIn: 60 * 60 * 24 * 7 + 's' }
-    // )
+    // @ts-ignore
+    const token = jwt.sign(
+        { userId: user.id, openid: user.openid }, 
+        jwtSecret,
+        { expiresIn: 60 * 60 * 24 * 7 + 's' }
+    )
 
-    // res.json({
-    //     code: 200,
-    //     data: {
-    //         token,
-    //         user
-    //     }
-    // })
+    res.json({
+        code: 200,
+        data: {
+            token,
+            user
+        }
+    })
 })
 
 export default router

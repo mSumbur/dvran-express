@@ -5,7 +5,7 @@
  */
 import express from "express"
 import validate from "../../middleware/validate"
-import { body, query } from "express-validator"
+import { body, param, query } from "express-validator"
 import { createArticleAction, deleteArticleAction } from "../../services/action"
 import { pageQuery } from "../../middleware/validaters"
 import { jwtAuth } from "../../middleware/jwtAuth"
@@ -15,12 +15,12 @@ const router = express.Router()
 /**
  * 点赞收藏文章
  */
-router.post('/article', jwtAuth, validate([
-    body('type').isString().withMessage('type is not valid'),
-    body('id').toInt().isInt().withMessage('id is not valid')
+router.post('/article/:id/:type', jwtAuth, validate([
+    param('id').toInt().isInt().withMessage('id is not valid'),
+    param('type').isString().withMessage('type is not valid')  
 ]), async (req, res) => {
     const userId = req.auth.userId
-    const { id: articleId, type } = req.body
+    const { id: articleId, type } = req.params
     const result = await createArticleAction(parseInt(articleId), userId, type)
     res.json({
         code: 200,
@@ -31,12 +31,12 @@ router.post('/article', jwtAuth, validate([
 /**
  * 取消点赞收藏帖子
  */
-router.delete('/article', jwtAuth, validate([
-    body('type').isString().withMessage('type is not valid'),
-    body('id').toInt().isInt().withMessage('id is not valid')
+router.delete('/article/:id/:type', jwtAuth, validate([
+    param('id').toInt().isInt().withMessage('id is not valid'),
+    param('type').isString().withMessage('type is not valid')   
 ]), async (req, res, next) => {
     const { userId } = req.auth
-    const { id: articleId, type } = req.body
+    const { id: articleId, type } = req.params
     const result = await deleteArticleAction(parseInt(articleId), userId, type)
     res.json({
         code: 200,
@@ -47,8 +47,8 @@ router.delete('/article', jwtAuth, validate([
 /**
  * 点赞收藏列表
  */
-router.get('/article/:type', jwtAuth, pageQuery, validate([
-    query('id').toInt().isInt().withMessage('id is not valid')
+router.get('/article/:id/:type', jwtAuth, pageQuery, validate([
+    param('id').toInt().isInt().withMessage('id is not valid')
 ]), async (req, res, next) => {
 
 })
@@ -56,8 +56,8 @@ router.get('/article/:type', jwtAuth, pageQuery, validate([
 /**
  * 关注用户
  */
-router.post('/user', jwtAuth, validate([
-    body('id').toInt().isInt().withMessage('id is not valid')
+router.post('/user/:id/follow', jwtAuth, validate([
+    param('id').toInt().isInt().withMessage('id is not valid')
 ]), async (req, res, next) => {
 
 })
@@ -65,8 +65,8 @@ router.post('/user', jwtAuth, validate([
 /**
  * 取消关注
  */
-router.delete('/user', jwtAuth, validate([
-    body('id').toInt().isInt().withMessage('id is not valid')
+router.delete('/user/:id/follow', jwtAuth, validate([
+    param('id').toInt().isInt().withMessage('id is not valid')
 ]), async (req, res, next) => {
 
 })

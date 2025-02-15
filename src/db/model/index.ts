@@ -19,6 +19,7 @@ export { default as ArticleLike } from "./articleLike"
 export { default as ArticleCollect } from "./articleCollect"
 export { default as UserFollow } from "./userFollow"
 export { default as Message } from "./message"
+export { default as Comment } from "./comment"
 // const ArticleLike = require('./articleLike')
 // const ArticleCollect = require('./articleCollect')
 // const UserFollow = require('./userFollow')

@@ -26,7 +26,11 @@ const User = sequelize.define('user', {
         type: DataTypes.STRING
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    indexes: [{
+        unique: true,
+        fields: ['openid']
+    }]
 })
 
 export default User

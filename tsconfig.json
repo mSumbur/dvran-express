@@ -108,5 +108,5 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": ["src/**/*", "**/*"] // 确保包含 types 文件夹
+  "include": ["src/**/*"] // 确保包含 types 文件夹
 }
