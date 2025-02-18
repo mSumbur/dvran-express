@@ -9,12 +9,12 @@ const router = express.Router()
 /**
  * 获取当前用户信息
  */
-router.get('/current', jwtAuth, async (req, res, next) => {
+router.get('/user/current', jwtAuth, async (req, res, next) => {
     const { userId, openid } = req.auth
     let result = await findUserById(userId)
-    // if (!result) {
-    //     result = await createUserByOpenid(openid)
-    // }
+    if (!result) {
+        throw createHttpError(401)
+    }
     res.json({
         code: 200,
         data: result
@@ -24,7 +24,7 @@ router.get('/current', jwtAuth, async (req, res, next) => {
 /**
  * 获取用户详情
  */
-router.get('/:id', async (req, res, next) => {
+router.get('/user/:id', async (req, res, next) => {
     const userId = parseInt(req.params.id)
     const user = await findUserById(userId)
     if (user) {
@@ -40,7 +40,7 @@ router.get('/:id', async (req, res, next) => {
 /**
  * 更新用户信息
  */
-router.patch('/', jwtAuth, validate([
+router.patch('/user', jwtAuth, validate([
     body('avatar').optional(),
     body('nickname').optional(),
     body('bio').optional(),

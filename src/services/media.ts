@@ -7,6 +7,7 @@ export async function createMedia(value: any) {
         width: value.width,
         height: value.height,
         url: value.url,
+        size: value.size,
         type: value.fileType
     })
     return media

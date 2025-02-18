@@ -2,10 +2,13 @@ import sequelize from "../seq"
 import Article from "./article"
 import Media from "./media"
 
-const ArticleMedia = sequelize.define('article_media', {}, { timestamps: true })
+const ArticleMedia = sequelize.define(
+    'article_images',
+    {},
+    { timestamps: true }
+)
 
-// 关联多对多关系
-Article.belongsToMany(Media, { through: ArticleMedia, onDelete: 'CASCADE' })
+Article.belongsToMany(Media, { through: ArticleMedia, as: 'images', onDelete: 'CASCADE' })
 Media.belongsToMany(Article, { through: ArticleMedia, onDelete: 'CASCADE' })
 
 export default ArticleMedia

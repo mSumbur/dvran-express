@@ -6,7 +6,7 @@
 import express from "express"
 import validate from "../../middleware/validate"
 import { body, param, query } from "express-validator"
-import { createArticleAction, deleteArticleAction } from "../../services/action"
+import { ActionType, createArticleAction, deleteArticleAction } from "../../services/action"
 import { pageQuery } from "../../middleware/validaters"
 import { jwtAuth } from "../../middleware/jwtAuth"
 
@@ -21,7 +21,7 @@ router.post('/article/:id/:type', jwtAuth, validate([
 ]), async (req, res) => {
     const userId = req.auth.userId
     const { id: articleId, type } = req.params
-    const result = await createArticleAction(parseInt(articleId), userId, type)
+    const result = await createArticleAction(parseInt(articleId), userId, type as ActionType)
     res.json({
         code: 200,
         data: result
@@ -37,7 +37,7 @@ router.delete('/article/:id/:type', jwtAuth, validate([
 ]), async (req, res, next) => {
     const { userId } = req.auth
     const { id: articleId, type } = req.params
-    const result = await deleteArticleAction(parseInt(articleId), userId, type)
+    const result = await deleteArticleAction(parseInt(articleId), userId, type as ActionType)
     res.json({
         code: 200,
         data: result

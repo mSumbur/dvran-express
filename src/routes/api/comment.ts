@@ -1,14 +1,24 @@
 import express from "express"
 import { jwtAuth } from "../../middleware/jwtAuth"
-import { createComment } from "../../services/comment"
+import { createComment, findComments } from "../../services/comment"
 import validate from "../../middleware/validate"
 import { body } from "express-validator"
+import { IPageQuery, pageQuery } from "../../middleware/validaters"
+import { getTextLines } from "../../utils/getTextLines"
 const router = express.Router()
 
 /**
- * 创建评论
+ * @openapi
+ * /comment:
+ *   post:
+ *      summary: 创建评论
+ *      tags: [Comment]
+ *      responses:
+ *          200:
+ *              code: 状态码
+ *              data: 创建的评论
  */
-router.post('/', jwtAuth, validate([
+router.post('/comment', jwtAuth, validate([
     body('content').isString(),
     body('articleId').isInt().withMessage('articleId must be an integer'),
     body('parentId').optional().isInt()
@@ -24,13 +34,30 @@ router.post('/', jwtAuth, validate([
 /**
  * 获取文章评论列表
  */
-router.get('/article/:id', (req, res) => {
+router.get('/comments/:id', pageQuery, async (req, res) => {
+    const pageQuery = req.query as unknown as IPageQuery
+    const articleId = parseInt(req.params.id)
+    const result = await findComments({ ...pageQuery, articleId })
+
+    const deviceHeight = req.get('DeviceHeight')
+    const data = []
+    for (let i = 0; i < result.rows.length; i++) {
+        const item = result.rows[i].dataValues
+        data.push({
+            ...item,
+            textLines: await getTextLines({
+                text: item.content,
+                textSize: 16,
+                wrapHeight: parseInt(deviceHeight + '') * 0.66 - 70
+            })
+        })
+    }
     res.json({
         code: 200,
-        data: [],
-        total: 1,
-        page: 1,
-        count: 1
+        data,
+        total: result.count,
+        page: pageQuery.page,
+        count: pageQuery.count
     })
 })
 

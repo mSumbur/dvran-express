@@ -12,7 +12,7 @@ const router = express.Router()
 /**
  * 微信小程序登录(无感)
  */
-router.post('/weapp/login', async (req, res) => {
+router.post('/auth/weapp/login', async (req, res) => {
     const { appid, code } = req.body
     const appSecret = process.env.WEAPP_SECRET
     const result = await axios(`https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&js_code=${code}&secret=${appSecret}&grant_type=authorization_code`)

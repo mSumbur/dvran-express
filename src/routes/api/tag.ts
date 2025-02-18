@@ -10,28 +10,28 @@ const router = express.Router()
 /**
  * 创建标签
  */
-router.post('/', (req, res) => {
+router.post('/tag', (req, res) => {
     res.send(req.body)
 })
 
 /**
  * 更新标签
  */
-router.patch('/:id', (req, res) => {
+router.patch('/tag/:id', (req, res) => {
 
 })
 
 /**
  * 删除标签
  */
-router.delete('/:id', (req, res) => {
+router.delete('/tag/:id', (req, res) => {
 
 })
 
 /**
  * 获取推荐标签列表
  */
-router.get('/recommend', pageQuery, async (req, res, next) => {
+router.get('/tag/recommend', pageQuery, async (req, res, next) => {
     const query = req.query as unknown as IPageQuery
     const result = await findTagsByRecommend(query)
     const defaultData = [
@@ -53,7 +53,7 @@ router.get('/recommend', pageQuery, async (req, res, next) => {
 /**
  * 获取标签详情
  */
-router.get('/:id', (req, res) => {
+router.get('/tag/:id', (req, res) => {
 
 })
 

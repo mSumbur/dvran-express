@@ -6,7 +6,7 @@ const router = express.Router()
 /**
  * 七牛token
  */
-router.post('/qiniutoken', async (req, res, next) => {
+router.post('/tool/qiniutoken', async (req, res, next) => {
     // 生成鉴权对象 mac
     const accessKey = process.env.QINIU_AK
     const secretKey = process.env.QINIU_SK
@@ -28,7 +28,7 @@ router.post('/qiniutoken', async (req, res, next) => {
 /**
  * 获取galpic文字图片
  */
-router.post('/text', async (req, res, next) => {
+router.post('/tool/text', async (req, res, next) => {
     const result = await createGalpicTextImage(req.body)
     res.json({
         code: 200,

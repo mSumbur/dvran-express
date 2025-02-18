@@ -1,42 +1,83 @@
 // const { DataTypes } = require('sequelize')
 // const { sequelize } = require('../seq')
-import { DataTypes } from "sequelize"
+import { DataTypes, Model, Optional } from "sequelize"
 import sequelize from "../seq"
 import User from "./user"
+import Media, { MediaAttributes } from "./media"
 
-const Article = sequelize.define('article', {
-    title: {
-        type: DataTypes.TEXT
-    },    
-    text: {
-        type: DataTypes.TEXT
+interface ArticleAttributes {
+    id: number
+    title: string
+    text: string
+    // delta: JSON
+    openid?: string | null
+    userId: number
+    isRecommend: boolean
+    isApproved: boolean
+    deletedAt?: Date | null    
+}
+
+export interface ArticleCreationAttributes extends Optional<ArticleAttributes, 'id' | 'openid' | 'deletedAt'> {}
+
+export class Article extends Model<ArticleAttributes, ArticleCreationAttributes> implements ArticleAttributes {
+    public id!: number
+    public title!: string
+    public text!: string
+    // public delta!: JSON
+    public openid?: string | null
+    public userId!: number
+    public isRecommend!: boolean
+    public isApproved!: boolean
+    public deletedAt?: Date | null
+
+    public readonly images?: Media[]
+    public readonly createdAt!: Date
+    public readonly updatedAt!: Date
+}
+
+Article.init({
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
     },
-    delta: DataTypes.JSON,
-    openid: DataTypes.STRING,
+    title: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    text: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    // delta: {
+    //     type: DataTypes.JSON,
+    //     allowNull: false
+    // },
     userId: {
         type: DataTypes.INTEGER,
-        allowNull: false        
+        allowNull: false,
+        references: {
+            model: User,
+            key: 'id'
+        },
+        onDelete: 'CASCADE'
     },
-    status: {
-        type: DataTypes.ENUM('normal', 'recommend'), // 0正常 1推荐 2待定
-        defaultValue: 'normal'
-    },    
-    isAudit: {
+    isRecommend: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
-    // isDeleted: {
-    //     type: DataTypes.BOOLEAN,
-    //     defaultValue: false
-    // }
+    isApproved: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    },
 }, {
+    sequelize,
+    modelName: 'articles',
     timestamps: true,
     paranoid: true
 })
 
-User.hasMany(Article)
-Article.belongsTo(User)
+User.hasMany(Article, { foreignKey: 'userId', as: 'articles' })
+Article.belongsTo(User, { foreignKey: 'userId', as: 'user' })
 
 export default Article
-
-// module.exports = Article

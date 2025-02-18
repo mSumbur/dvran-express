@@ -14,7 +14,7 @@ interface CommentAttributes {
 }
 
 // 创建时
-export interface CommentCreationAttributes extends Optional<CommentAttributes, 'id' | 'parentId'> {}
+export interface CommentCreationAttributes extends Optional<CommentAttributes, 'id' | 'parentId' | 'deletedAt'> {}
 
 // 定义 Comment 模型
 export class Comment extends Model<CommentAttributes, CommentCreationAttributes> implements CommentAttributes {
@@ -33,7 +33,7 @@ export class Comment extends Model<CommentAttributes, CommentCreationAttributes>
 Comment.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
@@ -60,7 +60,7 @@ Comment.init(
             allowNull: false,
         },
         parentId: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.INTEGER,
             allowNull: true,
             references: {
                 model: Comment, // 自引用，指向 Comment 自身
@@ -78,7 +78,10 @@ Comment.init(
 )
 
 // 定义模型关联关系
+Article.hasMany(Comment, { foreignKey: 'articleId', as: 'comments' })
 Comment.belongsTo(Article, { foreignKey: 'articleId', as: 'article' })
+
+User.hasMany(Comment, { foreignKey: 'userId', as: 'comments' })
 Comment.belongsTo(User, { foreignKey: 'userId', as: 'user' })
 
 // 关键：建立自引用关系

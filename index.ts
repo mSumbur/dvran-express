@@ -3,17 +3,30 @@ import fs from "fs"
 import express, { NextFunction, Request, Response } from "express"
 import cors from "cors"
 import morgan from "morgan"
+import "express-async-errors" // 错误处理插件
+import dotenv from "dotenv"
+import swaggerJSDoc from 'swagger-jsdoc'
+import swaggerUi from 'swagger-ui-express'
 
 // env
-import dotenv from "dotenv"
 dotenv.config({
   path: path.resolve(__dirname, './env/.env.' + process.env.NODE_ENV)
 })
 
 import { initDB } from "./src/db"
-// 错误处理插件
-import "express-async-errors"
-// require('express-async-errors')
+
+// Swagger 配置
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: 'Dvran Express API',
+      description: 'API documentation for the Express application',
+      version: '1.0.0',
+    },
+    basePath: '/',
+  },
+  apis: ['./src/routes/api/*.ts'], // 通过注释生成 API 文档, 指定扫描的文件
+}
 
 const app = express()
 app.use(express.urlencoded({ extended: false }))
@@ -24,7 +37,7 @@ app.use(morgan("tiny"))
 
 // 引入路由
 const routesPath = path.join(__dirname, './src/routes/api')
-fs.readdirSync(routesPath).forEach(file => {  
+fs.readdirSync(routesPath).forEach(file => {
   if (file.endsWith('.ts')) {
     // fs.lstatSync(filePath).isFile()   
     // const baseName = path.basename(file, path.extname(file))
@@ -33,9 +46,12 @@ fs.readdirSync(routesPath).forEach(file => {
   }
 })
 
+// 初始化 SwaggerJSDoc，在 Express 中设置 Swagger UI 路由
+const swaggerSpec = swaggerJSDoc(swaggerOptions)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
 // error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.log('发生错误', err.status, err.code)
   // res.locals.code = err?.status || 500
   // res.locals.message = err?.message || 'server error'
   // res.locals.error = req.app.get('env') === 'dev' ? err : {}

@@ -1,6 +1,6 @@
 import { ArticleCollect, ArticleLike } from "../db/model"
 
-type ActionType = 'like' | 'collect'
+export type ActionType = 'like' | 'collect'
 
 /**
  * 点赞收藏文章

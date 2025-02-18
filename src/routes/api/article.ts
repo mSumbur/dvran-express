@@ -1,7 +1,7 @@
 import express from "express"
 import createHttpError from "http-errors"
 import validate from "../../middleware/validate"
-import { body } from "express-validator"
+import { body, param } from "express-validator"
 import { pageQuery } from "../../middleware/validaters"
 import { jwtAuth, jwtAuthOption } from "../../middleware/jwtAuth"
 import { Article, ArticleLike, ArticleCollect } from "../../db/model"
@@ -17,11 +17,11 @@ const router = express.Router()
 router.post('/article', jwtAuth, validate([
     body('id').optional().isString().trim().withMessage('id must be a string'),
     body('text').isString().trim().withMessage('text must be a string'),    
-    body('media').optional().isArray(),
-    body('delta'),
+    body('images').optional().isArray(),
+    // body('delta').optional(),
     body('tagNames').optional().isArray(),
     body('tagNames.*').optional().isString().withMessage('Each tagName must be a string'),
-    body('tagIds').optional()
+    body('tagIds').optional().isArray()
 ]), async (req, res, next) => {
     const { userId, openid } = req.auth
     const article = await createArticle({ ...req.body, openid, userId })
@@ -35,6 +35,7 @@ router.post('/article', jwtAuth, validate([
  * 更新文章
  */
 router.patch('/article/:id', jwtAuth, validate([
+    param('id').toInt().isInt().withMessage('id must be an integer'),
     body('text').optional().isString().trim().withMessage('text must be a string'),
     body('tagNames').optional().isArray(),
     body('tagNames.*').optional().isString().withMessage('Each tagName must be a string')
@@ -90,7 +91,9 @@ router.get('/article/tag/:id', pageQuery, async (req, res) => {
 /**
  * 获取文章详情
  */
-router.get('/:id', jwtAuthOption, async (req, res, next) => {
+router.get('/article/:id', jwtAuthOption, validate([
+    param('id').toInt().isInt().withMessage('id must be an integer')
+]), async (req, res, next) => {
     const articleId = parseInt(req.params.id)
     let data = (await findArticleById(articleId))?.dataValues
     if (!data) {
@@ -103,7 +106,6 @@ router.get('/:id', jwtAuthOption, async (req, res, next) => {
         const articleCollect = await ArticleCollect.findOne({ where })        
         Object.assign(data, { isLike: !!articleLike, isCollect: !!articleCollect })
     }
-    const aaa = await ArticleLike.count({ where: { articleId } })
     const deviceWidth = req.get('DeviceWidth')
     const textLines = deviceWidth ? await getTextLines({
         text: data.text,
