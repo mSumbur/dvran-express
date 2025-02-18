@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=dev ts-node index.js",
-    "start": "NODE_ENV=prod ts-node index.js",
+    "dev": "NODE_ENV=dev ts-node index.ts",
+    "start": "NODE_ENV=prod ts-node index.ts",
     "ts": "NODE_ENV=dev ts-node index.ts"
   },
   "author": "",
