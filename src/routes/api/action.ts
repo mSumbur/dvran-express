@@ -13,7 +13,11 @@ import { jwtAuth } from "../../middleware/jwtAuth"
 const router = express.Router()
 
 /**
- * 点赞收藏文章
+ * @openapi
+ * /article/:id/:type:
+ *  post:
+ *      summary: 点赞收藏文章
+ *      tags: [文章]
  */
 router.post('/article/:id/:type', jwtAuth, validate([
     param('id').toInt().isInt().withMessage('id is not valid'),
@@ -29,7 +33,11 @@ router.post('/article/:id/:type', jwtAuth, validate([
 })
 
 /**
- * 取消点赞收藏帖子
+ * @openapi
+ * /article/:id/:type:
+ *  delete:
+ *      summary: 取消点赞收藏文章
+ *      tags: [文章]
  */
 router.delete('/article/:id/:type', jwtAuth, validate([
     param('id').toInt().isInt().withMessage('id is not valid'),
@@ -45,7 +53,11 @@ router.delete('/article/:id/:type', jwtAuth, validate([
 })
 
 /**
- * 点赞收藏列表
+ * @openapi
+ * /article/:id/:type:
+ *  get:
+ *      summary: 获取点赞收藏列表
+ *      tags: [文章]
  */
 router.get('/article/:id/:type', jwtAuth, pageQuery, validate([
     param('id').toInt().isInt().withMessage('id is not valid')
@@ -54,7 +66,11 @@ router.get('/article/:id/:type', jwtAuth, pageQuery, validate([
 })
 
 /**
- * 关注用户
+ * @openapi
+ * /user/:id/follow:
+ *  post:
+ *      summary: 关注用户
+ *      tags: [用户]
  */
 router.post('/user/:id/follow', jwtAuth, validate([
     param('id').toInt().isInt().withMessage('id is not valid')
@@ -63,7 +79,11 @@ router.post('/user/:id/follow', jwtAuth, validate([
 })
 
 /**
- * 取消关注
+ * @openapi
+ * /user/:id/follow:
+ *  delete:
+ *      summary: 取消关注
+ *      tags: [用户]
  */
 router.delete('/user/:id/follow', jwtAuth, validate([
     param('id').toInt().isInt().withMessage('id is not valid')

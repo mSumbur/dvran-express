@@ -22,6 +22,7 @@ const User = sequelize.define('user', {
     unionid: { type: DataTypes.STRING, allowNull: true },
     phone: DataTypes.STRING,
     ipaddress: DataTypes.STRING,
+    isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
     birthday: {
         type: DataTypes.STRING
     }

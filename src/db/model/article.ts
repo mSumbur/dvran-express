@@ -5,21 +5,22 @@ import sequelize from "../seq"
 import User from "./user"
 import Media, { MediaAttributes } from "./media"
 
-interface ArticleAttributes {
-    id: number
-    title: string
-    text: string
-    // delta: JSON
-    openid?: string | null
-    userId: number
-    isRecommend: boolean
-    isApproved: boolean
-    deletedAt?: Date | null    
-}
+// interface ArticleAttributes {
+//     id: number
+//     title: string
+//     text: string
+//     // delta: JSON
+//     openid?: string | null
+//     userId: number
+//     isRecommend: boolean
+//     isApproved: boolean
+//     deletedAt?: Date | null    
+//     image
+// }
 
-export interface ArticleCreationAttributes extends Optional<ArticleAttributes, 'id' | 'openid' | 'deletedAt'> {}
+// export interface ArticleCreationAttributes extends Optional<ArticleAttributes, 'id' | 'openid' | 'deletedAt'> {}
 
-export class Article extends Model<ArticleAttributes, ArticleCreationAttributes> implements ArticleAttributes {
+export class Article extends Model {
     public id!: number
     public title!: string
     public text!: string

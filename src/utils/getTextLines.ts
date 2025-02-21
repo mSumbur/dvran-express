@@ -19,6 +19,9 @@ export function getTextLines({
     // const words = splitAndPreserveSpaces ? text.split(/(\s+)/).filter(Boolean) : text.split(/\s+/)
     // const regex = /[\u4e00-\u9fa5]|[\u1800-\u18AF]+|[a-zA-Z]+|\d+|[^\s\w\u4e00-\u9fa5\u1800-\u18AF]+|[\s]+/g;
     const regex = /[\u4e00-\u9fa5]|[\u1800-\u18AF]+|[a-zA-Z]+|\d+|[^\s\w\u4e00-\u9fa5\u1800-\u18AF]+|\s/g;
+    // const regex = /#U\+200B.*?U\+200B#|[\u4e00-\u9fa5]|[\u1800-\u18AF]+|[a-zA-Z]+|\d+|[^\s\w\u4e00-\u9fa5\u1800-\u18AF]+|\s/g;
+    // const regex = /<[^>]+>|[\u4e00-\u9fa5]|[\u1800-\u18AF]+|[a-zA-Z]+|\d+|[^\s\w\u4e00-\u9fa5\u1800-\u18AF]+|\s/g;
+
     const words: string[] = text.match(regex) || []
 
     const lines = []

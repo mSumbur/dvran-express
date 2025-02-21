@@ -7,7 +7,11 @@ import express from "express"
 const router = express.Router()
 
 /**
- * 获取当前用户信息
+ * @openapi
+ * /user/current:
+ *  get:
+ *      summary: 获取当前用户信息
+ *      tags: [用户]
  */
 router.get('/user/current', jwtAuth, async (req, res, next) => {
     const { userId, openid } = req.auth
@@ -22,7 +26,11 @@ router.get('/user/current', jwtAuth, async (req, res, next) => {
 })
 
 /**
- * 获取用户详情
+ * @openapi
+ * /user/:id:
+ *  get:
+ *      summary: 获取用户详情
+ *      tags: [用户]
  */
 router.get('/user/:id', async (req, res, next) => {
     const userId = parseInt(req.params.id)
@@ -38,7 +46,11 @@ router.get('/user/:id', async (req, res, next) => {
 })
 
 /**
- * 更新用户信息
+ * @openapi
+ * /user/:id:
+ *  get:
+ *      summary: 更新用户信息
+ *      tags: [用户]
  */
 router.patch('/user', jwtAuth, validate([
     body('avatar').optional(),

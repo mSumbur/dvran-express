@@ -10,7 +10,15 @@ import { findUserByOpenid, createUserByOpenid } from "../../services/user"
 const router = express.Router()
 
 /**
- * 微信小程序登录(无感)
+ * @openapi
+ * /auth/weapp/login:
+ *  post:
+ *      summary: 微信小程序登录(无感)
+ *      tags: [Auth]
+ *      response:
+ *          200: 
+ *              code: 状态码
+ *              data: 创建的文章            
  */
 router.post('/auth/weapp/login', async (req, res) => {
     const { appid, code } = req.body
@@ -47,4 +55,3 @@ router.post('/auth/weapp/login', async (req, res) => {
 })
 
 export default router
-// module.exports = router

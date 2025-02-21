@@ -1,11 +1,11 @@
 // const createHttpError = require('http-errors');
 import createHttpError from "http-errors"
 import sequelize from "../db/seq"
-import { Article, Tag, Media, ArticleTag, User, ArticleLike } from "../db/model"
+import { Article, Tag, Media, ArticleTag, User, ArticleLike, ArticleCollect } from "../db/model"
 import { createTag } from "./tag"
 import { createMedia } from "./media"
 import { IPageQuery } from "../middleware/validaters"
-import { ArticleCreationAttributes } from "../db/model/article"
+// import { ArticleCreationAttributes } from "../db/model/article"
 
 /**
  * 创建文章
@@ -61,7 +61,7 @@ export async function createArticle(value: Article & { tagIds?: number[], tagNam
     return article.dataValues
 }
 
-export async function updateArticle(value: ArticleCreationAttributes & { tagIds: number[], tagNames: string[] }) {
+export async function updateArticle(value: Article & { tagIds: number[], tagNames: string[] }) {
 
 }
 
@@ -103,12 +103,72 @@ export async function findArticles() {
 export async function findArticlesByTagId(tagId: number, pageQuery: IPageQuery) {
     const { page, count } = pageQuery
     const offset = (page - 1) * count
-    const result = await Article.findAndCountAll({
+    const result = await Article.findAndCountAll({        
         order: [['createdAt', 'DESC']],
         limit: count,
         offset: offset,
-        include: [Media, Tag, User]
+        include: [{
+            model: Tag,
+            as: 'tags',
+            required: true
+        }]
     })
+    return result
+}
+
+/**
+ * 获取用户点赞文章列表
+ * @param userId 
+ * @param pageQuery 
+ * @returns 
+ */
+export async function findArticlesByUserLike(userId: number, pageQuery: IPageQuery) {
+    const { page, count } = pageQuery
+    const offset = (page - 1) * count
+    const result = await Article.findAndCountAll({
+        include: [
+            {
+                model: ArticleLike,
+                as: 'likes',
+                required: true
+            },
+            {
+                model: User,
+                as: 'user'
+            }
+        ],
+        order: [['createdAt', 'DESC']],
+        limit: count,
+        offset: offset
+    })  
+    return result
+}
+
+/**
+ * 获取用户收藏文章列表
+ * @param userId 
+ * @param pageQuery 
+ * @returns 
+ */
+export async function findArticlesByUserCollect(userId: number, pageQuery: IPageQuery) {
+    const { page, count } = pageQuery
+    const offset = (page - 1) * count
+    const result = await Article.findAndCountAll({
+        include: [
+            {
+                model: ArticleCollect,
+                as: 'collects',
+                required: true
+            },
+            {
+                model: User,
+                as: 'user'
+            }
+        ],
+        order: [['createdAt', 'DESC']],
+        limit: count,
+        offset: offset
+    })  
     return result
 }
 

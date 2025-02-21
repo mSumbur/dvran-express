@@ -12,7 +12,7 @@ const router = express.Router()
  * /comment:
  *   post:
  *      summary: 创建评论
- *      tags: [Comment]
+ *      tags: [评论]
  *      responses:
  *          200:
  *              code: 状态码
@@ -32,7 +32,11 @@ router.post('/comment', jwtAuth, validate([
 })
 
 /**
- * 获取文章评论列表
+ * @openapi
+ * /comments/:id:
+ *  get:
+ *      summary: 获取文章评论列表
+ *      tags: [评论]
  */
 router.get('/comments/:id', pageQuery, async (req, res) => {
     const pageQuery = req.query as unknown as IPageQuery
