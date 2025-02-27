@@ -1,3 +1,4 @@
+import { Op } from "sequelize"
 import { Tag } from "../db/model"
 import { IPageQuery } from "../middleware/validaters"
 
@@ -51,6 +52,44 @@ export async function findTags(pageQuery: IPageQuery) {
     return result
 }
 
+/**
+ * 搜索标签
+ * @param text 
+ * @param pageQuery 
+ * @returns 
+ */
+export async function findTagsByText(text: string, pageQuery: IPageQuery) {
+    const { page, count } = pageQuery
+    const offset = (page - 1) * count
+    const result = await Tag.findAndCountAll({
+        where: {            
+            [Op.or]: [
+                {
+                    name: {
+                        [Op.like]: `%${text}%`
+                    }
+                }, {
+                    name: {
+                        [Op.like]: `%${text.split('').join('%')}%`
+                    }
+                }
+            ]
+        },
+        order: [['createdAt', 'DESC']],
+        limit: count,
+        offset: offset
+    })
+    return result
+}
+
 export async function findTagById(id: number) {
     return await Tag.findByPk(id)
+}
+
+export async function findTagByName(name: string) {
+    return await Tag.findOne({
+        where: {
+            name
+        }
+    })
 }

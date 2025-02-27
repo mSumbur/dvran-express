@@ -2,7 +2,7 @@
 // const { body, validationResult } = require('express-validator')
 
 import { IPageQuery, pageQuery } from "../../middleware/validaters"
-import { createTag, findTagById, findTags, findTagsByRecommend, updateTag } from "../../services/tag"
+import { createTag, findTagById, findTagByName, findTags, findTagsByRecommend, updateTag } from "../../services/tag"
 
 import express from "express"
 import validate from "../../middleware/validate"
@@ -96,6 +96,23 @@ router.get('/tags', pageQuery, async (req, res) => {
         total: result.count,
         page: query.page,
         count: query.count        
+    })
+})
+
+/**
+ * @openapi
+ * /tag/name/:name:
+ *  get:
+ *      summary: 获取标签详情
+ *      tags: [标签]
+ */
+router.get('/tag/name/:name', validate([
+    param('name').isString().withMessage('name must be a string')
+]), async (req, res) => {
+    const tag = await findTagByName(req.params.name)
+    res.json({
+        code: 200,
+        data: tag
     })
 })
 

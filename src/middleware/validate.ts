@@ -7,7 +7,10 @@ export default function validate(validations: any): any {
         // 顺序执行验证规则，发现错误立即返回
         for (const validation of validations) {
             const keyName = validation.builder.fields[0]
-            filteredBody[keyName] = req.body[keyName]
+            // body
+            if (req.body[keyName]) {
+                filteredBody[keyName] = req.body[keyName]
+            }
             const result = await validation.run(req);
             if (!result.isEmpty()) {
                 return res.status(400).json({

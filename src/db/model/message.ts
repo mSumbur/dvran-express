@@ -2,22 +2,22 @@ import { Model, DataTypes } from 'sequelize'
 import sequelize from '../seq'
 import User from './user'
 
-export interface MessageCreationAttributes {
-  senderId: number
-  receiverId: number
-  relationId: number
-  content: string  
-  messageType: string
-}
+// export interface MessageCreationAttributes {
+//   senderId: number
+//   receiverId: number
+//   relationId: number
+//   content: string  
+//   messageType: string
+// }
 
 class Message extends Model {
   public id!: number
-  public senderId!: number
-  public receiverId!: number
-  public content!: string
-  public relationId!: number
-  public messageType!: string // 例如 text, image 等
-  public status!: number // 未读（unread）或者已读（read）
+  public senderId!: number    // 发送者id
+  public receiverId!: number  // 接收者id
+  public content!: string     // 内容
+  public relationId!: number  // 链接内容id
+  public type!: number        // 1点赞 2收藏 3关注 4官方
+  public status!: boolean     // 未读（unread）或者已读（read）
   public readonly createdAt!: Date
   public readonly updatedAt!: Date
 }
@@ -45,21 +45,17 @@ Message.init({
     },
   },
   content: {
-    type: DataTypes.STRING(1000),
-    allowNull: false,
+    type: DataTypes.STRING(1000)
   },
   relationId: {
     type: DataTypes.INTEGER
   },
-  messageType: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: 'text', // 默认是文本消息
+  type: {
+    type: DataTypes.INTEGER,    
   },
   status: {
-    type: DataTypes.INTEGER,    
-    allowNull: false,
-    defaultValue: 0, // 默认消息为未读
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
 }, {
   sequelize,

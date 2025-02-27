@@ -5,6 +5,7 @@ import { Article, Tag, Media, ArticleTag, User, ArticleLike, ArticleCollect } fr
 import { createTag } from "./tag"
 import { createMedia } from "./media"
 import { IPageQuery } from "../middleware/validaters"
+import { Op } from "sequelize"
 // import { ArticleCreationAttributes } from "../db/model/article"
 
 /**
@@ -169,6 +170,40 @@ export async function findArticlesByUserCollect(userId: number, pageQuery: IPage
         limit: count,
         offset: offset
     })  
+    return result
+}
+
+export async function findArticlesByText(text: string, pageQuery: IPageQuery) {
+    const { page, count } = pageQuery
+    const offset = (page - 1) * count
+    const result = await Article.findAndCountAll({
+        where: {
+            [Op.or]: [
+                {
+                    text: {
+                        [Op.like]: `%${text}%`
+                    }
+                }, {
+                    text: {
+                        [Op.like]: `%${text.split('').join('%')}%`
+                    }
+                }
+            ]
+        },
+        include: [
+            {
+                model: Media,
+                as: 'images'
+            },
+            {
+                model: User,
+                as: 'user'
+            }
+        ],
+        order: [['createdAt', 'DESC']],
+        limit: count,
+        offset: offset
+    })
     return result
 }
 

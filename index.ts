@@ -65,7 +65,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 const port = process.env.PORT || 3333
 
 async function bootstrap() {
-  await initDB()
+  // await initDB()
   app.listen(port, () => console.log("start success ", port))
 }
 

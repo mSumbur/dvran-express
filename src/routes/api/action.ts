@@ -5,10 +5,14 @@
  */
 import express from "express"
 import validate from "../../middleware/validate"
-import { body, param, query } from "express-validator"
+import { body, matchedData, param, query } from "express-validator"
 import { ActionType, createArticleAction, deleteArticleAction } from "../../services/action"
 import { pageQuery } from "../../middleware/validaters"
 import { jwtAuth } from "../../middleware/jwtAuth"
+import { createArticleLikeMessage, createMessage, findMessage } from "../../services/message"
+import { findArticleById } from "../../services/article"
+import createHttpError from "http-errors"
+import { Message } from "../../db/model"
 
 const router = express.Router()
 
@@ -19,17 +23,32 @@ const router = express.Router()
  *      summary: 点赞收藏文章
  *      tags: [文章]
  */
-router.post('/article/:id/:type', jwtAuth, validate([
-    param('id').toInt().isInt().withMessage('id is not valid'),
-    param('type').isString().withMessage('type is not valid')  
+router.post('/article/:articleId/:type', jwtAuth, validate([
+    param('articleId').toInt().isInt().withMessage('id is not valid'),
+    param('type').isString().withMessage('type is not valid')
 ]), async (req, res) => {
-    const userId = req.auth.userId
-    const { id: articleId, type } = req.params
-    const result = await createArticleAction(parseInt(articleId), userId, type as ActionType)
+    const { userId } = req.auth
+    const { articleId, type } = matchedData(req)
+    const article = await findArticleById(articleId)
+    if (!article) {
+        throw createHttpError(400)
+    }
+    const result = await createArticleAction(articleId, userId, type as ActionType)
+    const msgRecord = await findMessage(userId, articleId)    
+    // 发送过消息就不再发
+    if (!msgRecord) {
+        console.log('worl::: ')
+        await createArticleLikeMessage({
+            senderId: userId,
+            relationId: articleId,
+            receiverId: article.userId
+        })
+        console.log('worl::: end')
+    }
     res.json({
         code: 200,
         data: result
-    })
+    })    
 })
 
 /**
@@ -41,7 +60,7 @@ router.post('/article/:id/:type', jwtAuth, validate([
  */
 router.delete('/article/:id/:type', jwtAuth, validate([
     param('id').toInt().isInt().withMessage('id is not valid'),
-    param('type').isString().withMessage('type is not valid')   
+    param('type').isString().withMessage('type is not valid')
 ]), async (req, res, next) => {
     const { userId } = req.auth
     const { id: articleId, type } = req.params

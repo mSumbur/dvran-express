@@ -20,7 +20,7 @@ import Media, { MediaAttributes } from "./media"
 
 // export interface ArticleCreationAttributes extends Optional<ArticleAttributes, 'id' | 'openid' | 'deletedAt'> {}
 
-export class Article extends Model {
+class Article extends Model {
     public id!: number
     public title!: string
     public text!: string
@@ -50,10 +50,6 @@ Article.init({
         type: DataTypes.TEXT,
         allowNull: false
     },
-    // delta: {
-    //     type: DataTypes.JSON,
-    //     allowNull: false
-    // },
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
