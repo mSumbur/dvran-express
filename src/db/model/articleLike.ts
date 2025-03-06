@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../seq"
-import Article from "./article"
+import ArticleModel from "./article"
 import User from "./user"
 
-class ArticleLike extends Model {
+class ArticleLikeModel extends Model {
     public id!: number
     public articleId!: number
     public userId!: number
@@ -11,7 +11,7 @@ class ArticleLike extends Model {
     public readonly updatedAt!: Date;
 }
 
-ArticleLike.init({
+ArticleLikeModel.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -21,7 +21,7 @@ ArticleLike.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Article,
+            model: ArticleModel,
             key: 'id',
         },
     },
@@ -35,16 +35,16 @@ ArticleLike.init({
     },
 }, {
     sequelize,
-    modelName: 'article_likes',
+    modelName: 'article_like',
     timestamps: true
 })
 
-// 文章和 ArticleCollect 之间的一对多关系
-Article.hasMany(ArticleLike, { foreignKey: 'articleId', as: 'likes' })
-ArticleLike.belongsTo(Article, { foreignKey: 'articleId' })
+// 文章和点赞记录之间的一对多关系
+ArticleModel.hasMany(ArticleLikeModel, { foreignKey: 'articleId', as: 'likes' })
+ArticleLikeModel.belongsTo(ArticleModel, { foreignKey: 'articleId' })
 
-// 用户和 ArticleCollect 之间的一对多关系
-User.hasMany(ArticleLike, { foreignKey: 'userId', as: 'likes' })
-ArticleLike.belongsTo(User, { foreignKey: 'userId' })
+// 用户和点赞记录之间的一对多关系
+User.hasMany(ArticleLikeModel, { foreignKey: 'userId', as: 'likes' })
+ArticleLikeModel.belongsTo(User, { foreignKey: 'userId' })
 
-export default ArticleLike
+export default ArticleLikeModel

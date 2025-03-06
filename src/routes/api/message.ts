@@ -1,7 +1,8 @@
 import express from "express"
+import MessageService from "../../services/message"
 import { IPageQuery, pageQuery } from "../../middleware/validaters"
 import { jwtAuth } from "../../middleware/jwtAuth"
-import { findMessagesByUserId } from "../../services/message"
+
 const router = express.Router()
 
 /**
@@ -10,7 +11,7 @@ const router = express.Router()
 router.get('/messages', jwtAuth, pageQuery, async (req, res, next) => {
     const { userId } = req.auth
     const pageQuery = req.query as unknown as IPageQuery
-    const result = await findMessagesByUserId(userId, pageQuery)
+    const result = await MessageService.findMessagesByUserId(userId, pageQuery)
     res.json({
         code: 200,
         data: result.rows,

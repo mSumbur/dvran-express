@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize"
 import sequelize from "../seq"
 
-const Tag = sequelize.define('tag', {    
+const TagModel = sequelize.define('tag', {    
     name: { type: DataTypes.STRING, allowNull: false },
     image: DataTypes.STRING,
     description: DataTypes.TEXT,
@@ -23,4 +23,4 @@ const Tag = sequelize.define('tag', {
     }]
 })
 
-export default Tag
+export default TagModel

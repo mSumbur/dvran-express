@@ -1,13 +1,10 @@
-// const { validate } = require('../../middleware/validate')
-// const { body, validationResult } = require('express-validator')
-
-import { IPageQuery, pageQuery } from "../../middleware/validaters"
-import { createTag, findTagById, findTagByName, findTags, findTagsByRecommend, updateTag } from "../../services/tag"
-
 import express from "express"
 import validate from "../../middleware/validate"
+import TagService from "../../services/tag"
+import { IPageQuery, pageQuery } from "../../middleware/validaters"
 import { body, param } from "express-validator"
 import { jwtAuth } from "../../middleware/jwtAuth"
+
 const router = express.Router()
 
 /**
@@ -22,7 +19,7 @@ router.post('/tag', validate([
     body('image').isString().withMessage('image must be a string'),
     body('isRecommend').optional().isBoolean()
 ]), async (req, res) => {
-    const tag = await createTag(req.body)
+    const tag = await TagService.createTag(req.body)
     res.json({
         code: 200,
         data: tag
@@ -42,9 +39,8 @@ router.patch('/tag/:id', jwtAuth, validate([
     body('image').isString().withMessage('image must be a string'),
     body('isRecommend').optional().isBoolean()
 ]), async (req, res) => {
-    console.log('redd', req.body)
     const id = parseInt(req.params.id)
-    const tag = await updateTag(id, req.body)
+    const tag = await TagService.updateTag(id, req.body)
     res.json({
         code: 200,
         data: tag
@@ -63,7 +59,7 @@ router.delete('/tag/:id', (req, res) => {
  */
 router.get('/tag/recommend', pageQuery, async (req, res, next) => {
     const query = req.query as unknown as IPageQuery
-    const result = await findTagsByRecommend(query)
+    const result = await TagService.findTagsByRecommend(query)
     const defaultData = [
         { id: 'd1', name: 'ᠲᠠᠭᠠᠭᠰᠠᠨ ᠨᠡᠢᠳᠡᠯᠡᠯ', api: '/articles/recommend' },
         { id: 'd2', name: 'ᠲᠡᠪᠰᠢᠭᠦᠯᠬᠦ ᠨᠡᠢᠳᠡᠯᠡᠯ', api: '/articles/recommend' },
@@ -89,7 +85,7 @@ router.get('/tag/recommend', pageQuery, async (req, res, next) => {
  */
 router.get('/tags', pageQuery, async (req, res) => {
     const query = req.query as unknown as IPageQuery
-    const result = await findTags(query)
+    const result = await TagService.findTags(query)
     res.json({
         code: 200,
         data: result.rows,
@@ -109,7 +105,7 @@ router.get('/tags', pageQuery, async (req, res) => {
 router.get('/tag/name/:name', validate([
     param('name').isString().withMessage('name must be a string')
 ]), async (req, res) => {
-    const tag = await findTagByName(req.params.name)
+    const tag = await TagService.findTagByName(req.params.name)
     res.json({
         code: 200,
         data: tag
@@ -126,7 +122,7 @@ router.get('/tag/name/:name', validate([
 router.get('/tag/:id', validate([
     param('id').toInt().isInt().withMessage('id must be an integer')
 ]), async (req, res) => {
-    const tag = await findTagById(parseInt(req.params.id))
+    const tag = await TagService.findTagById(parseInt(req.params.id))
     res.json({
         code: 200,
         data: tag

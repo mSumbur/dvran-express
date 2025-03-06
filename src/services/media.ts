@@ -1,14 +1,23 @@
-import { Media } from "../db/model"
+import { MediaModel } from "../db/model"
 
-export async function createMedia(value: any) {
-    const media = await Media.create({
-        hash: value.hash,
-        key: value.key,
-        width: value.width,
-        height: value.height,
-        url: value.url,
-        size: value.size,
-        type: value.fileType
-    })
-    return media
+namespace MediaService {
+    /**
+     * 创建媒体
+     * @param {object} value 媒体内容
+     * @returns 
+     */
+    export async function createMedia(value: MediaModel) {
+        const media = await MediaModel.create({
+            hash: value.hash,
+            key: value.key,
+            width: value.width,
+            height: value.height,
+            url: value.url,
+            size: value.size,
+            fileType: value.fileType
+        })
+        return media
+    }
 }
+
+export default MediaService

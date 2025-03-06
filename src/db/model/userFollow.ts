@@ -1,18 +1,43 @@
+import { Model, DataTypes } from "sequelize"
 import sequelize from "../seq"
-import User from "./user"
+import UserModel from "./user"
 
-const UserFollow = sequelize.define('user_follow', {}, { timestamps: true })
+class UserFollowModel extends Model {
+    public followerId!: number
+    public followingId!: number
+    public readonly createdAt!: Date
+    public readonly updatedAt!: Date
+}
 
-// 关联一对一关系
-// UserFollow.hasOne(User, { foreignKey: 'targetUserId' })
-// User.belongsTo(UserFollow)
+UserFollowModel.init({
+    followerId: {
+        type: DataTypes.INTEGER,
+        references: { model: 'Users', key: 'id' },
+        onDelete: 'CASCADE'
+    },
+    followingId: {
+        type: DataTypes.INTEGER,
+        references: { model: 'Users', key: 'id' },
+        onDelete: 'CASCADE'
+    }
+}, {
+    sequelize,
+    modelName: 'user_follow',
+    timestamps: true
+})
 
-// UserFollow.hasOne(User, { foreignKey: 'userId' })
-// User.belongsTo(UserFollow)
-User.hasOne(UserFollow, { foreignKey: 'targetUserId' })
-UserFollow.belongsTo(User)
+UserModel.belongsToMany(UserModel, {
+    as: 'followers',
+    through: UserFollowModel,
+    foreignKey: 'followingId',
+    otherKey: 'followerId'
+})
 
-User.hasOne(UserFollow, { foreignKey: 'userId' })
-UserFollow.belongsTo(User)
+UserModel.belongsToMany(UserModel, {
+    as: 'following',
+    through: UserFollowModel,
+    foreignKey: 'followerId',
+    otherKey: 'followingId'
+})
 
-export default UserFollow
+export default UserFollowModel

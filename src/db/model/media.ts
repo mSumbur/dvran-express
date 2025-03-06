@@ -1,24 +1,24 @@
 import { DataTypes, Model, Optional } from "sequelize"
 import sequelize from "../seq"
 
-export interface MediaAttributes {
-    id: number
-    type: string
-    hash: string
-    key: string
-    url: string
-    width: number
-    height: number
-    size: number
-    openid?: string | null
-    deletedAt?: Date | null
-}
+// export interface MediaAttributes {
+//     id: number
+//     type: string
+//     hash: string
+//     key: string
+//     url: string
+//     width: number
+//     height: number
+//     size: number
+//     openid?: string | null
+//     deletedAt?: Date | null
+// }
 
-export interface MediaCreationAttributes extends Optional<MediaAttributes, 'id' | 'openid' | 'deletedAt'> {}
+// export interface MediaCreationAttributes extends Optional<MediaAttributes, 'id' | 'openid' | 'deletedAt'> {}
 
-export class Media extends Model<MediaAttributes, MediaCreationAttributes> implements MediaAttributes {
+export class MediaModel extends Model {
     public id!: number
-    public type!: string
+    public fileType!: string
     public hash!: string
     public key!: string
     public url!: string
@@ -32,13 +32,13 @@ export class Media extends Model<MediaAttributes, MediaCreationAttributes> imple
     public readonly updatedAt!: Date
 }
 
-Media.init({
+MediaModel.init({
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true
     },
-    type: DataTypes.STRING,
+    fileType: DataTypes.STRING,
     hash: DataTypes.STRING,
     key: DataTypes.STRING,
     url: { type: DataTypes.STRING, allowNull: false },
@@ -71,4 +71,4 @@ Media.init({
 //     paranoid: true
 // })
 
-export default Media
+export default MediaModel

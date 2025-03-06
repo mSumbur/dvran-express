@@ -1,10 +1,10 @@
 import express from "express"
-import { jwtAuth } from "../../middleware/jwtAuth"
-import { createComment, findComments } from "../../services/comment"
 import validate from "../../middleware/validate"
+import { jwtAuth } from "../../middleware/jwtAuth"
 import { body } from "express-validator"
 import { IPageQuery, pageQuery } from "../../middleware/validaters"
 import { getTextLines } from "../../utils/getTextLines"
+import CommentService from "../../services/comment"
 const router = express.Router()
 
 /**
@@ -24,7 +24,7 @@ router.post('/comment', jwtAuth, validate([
     body('parentId').optional().isInt()
 ]), async (req, res, next) => {
     const { userId } = req.auth
-    const comment = await createComment({ ...req.body, userId })
+    const comment = await CommentService.createComment({ ...req.body, userId })
     res.json({
         code: 200,
         data: comment
@@ -41,7 +41,7 @@ router.post('/comment', jwtAuth, validate([
 router.get('/comments/:id', pageQuery, async (req, res) => {
     const pageQuery = req.query as unknown as IPageQuery
     const articleId = parseInt(req.params.id)
-    const result = await findComments({ ...pageQuery, articleId })
+    const result = await CommentService.findComments({ ...pageQuery, articleId })
 
     const deviceHeight = req.get('DeviceHeight')
     const data = []

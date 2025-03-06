@@ -1,6 +1,6 @@
 import path from "path"
 import fs from "fs"
-import express, { NextFunction, Request, Response } from "express"
+import express, { Application, NextFunction, Request, Response } from "express"
 import cors from "cors"
 import morgan from "morgan"
 import "express-async-errors" // 错误处理插件
@@ -28,7 +28,7 @@ const swaggerOptions = {
   apis: ['./src/routes/api/*.ts'], // 通过注释生成 API 文档, 指定扫描的文件
 }
 
-const app = express()
+const app: Application = express()
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(cors())
@@ -65,8 +65,12 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 const port = process.env.PORT || 3333
 
 async function bootstrap() {
-  // await initDB()
-  app.listen(port, () => console.log("start success ", port))
+  await initDB()
+  // return app.listen(port, () => console.log("start success ", port))
 }
 
-bootstrap()
+// bootstrap()
+
+const server = app.listen(port, () => console.log("start success ", port))
+
+export { app, server }

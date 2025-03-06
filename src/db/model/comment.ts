@@ -4,20 +4,20 @@ import User from "./user"
 import Article from "./article"
 
 // 定义 Comment 属性类型
-interface CommentAttributes {
-    id: number
-    articleId: number
-    userId: number
-    content: string
-    parentId?: number | null
-    deletedAt?: Date | null
-}
+// interface CommentAttributes {
+//     id: number
+//     articleId: number
+//     userId: number
+//     content: string
+//     parentId?: number | null
+//     deletedAt?: Date | null
+// }
 
 // 创建时
-export interface CommentCreationAttributes extends Optional<CommentAttributes, 'id' | 'parentId' | 'deletedAt'> {}
+// export interface CommentCreationAttributes extends Optional<CommentAttributes, 'id' | 'parentId' | 'deletedAt'> {}
 
 // 定义 Comment 模型
-export class Comment extends Model<CommentAttributes, CommentCreationAttributes> implements CommentAttributes {
+class CommentModel extends Model {
     public id!: number
     public articleId!: number
     public userId!: number
@@ -30,7 +30,7 @@ export class Comment extends Model<CommentAttributes, CommentCreationAttributes>
 }
 
 // 初始化模型
-Comment.init(
+CommentModel.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -63,7 +63,7 @@ Comment.init(
             type: DataTypes.INTEGER,
             allowNull: true,
             references: {
-                model: Comment, // 自引用，指向 Comment 自身
+                model: CommentModel, // 自引用，指向 Comment 自身
                 key: 'id',
             },
             onDelete: 'CASCADE',
@@ -78,14 +78,14 @@ Comment.init(
 )
 
 // 定义模型关联关系
-Article.hasMany(Comment, { foreignKey: 'articleId', as: 'comments' })
-Comment.belongsTo(Article, { foreignKey: 'articleId', as: 'article' })
+Article.hasMany(CommentModel, { foreignKey: 'articleId', as: 'comments' })
+CommentModel.belongsTo(Article, { foreignKey: 'articleId', as: 'article' })
 
-User.hasMany(Comment, { foreignKey: 'userId', as: 'comments' })
-Comment.belongsTo(User, { foreignKey: 'userId', as: 'user' })
+User.hasMany(CommentModel, { foreignKey: 'userId', as: 'comments' })
+CommentModel.belongsTo(User, { foreignKey: 'userId', as: 'user' })
 
 // 关键：建立自引用关系
-Comment.hasMany(Comment, { foreignKey: 'parentId', as: 'replies' })
-Comment.belongsTo(Comment, { foreignKey: 'parentId', as: 'parentComment' })
+CommentModel.hasMany(CommentModel, { foreignKey: 'parentId', as: 'replies' })
+CommentModel.belongsTo(CommentModel, { foreignKey: 'parentId', as: 'parentComment' })
 
-export default Comment
+export default CommentModel

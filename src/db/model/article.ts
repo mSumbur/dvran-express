@@ -1,42 +1,24 @@
-// const { DataTypes } = require('sequelize')
-// const { sequelize } = require('../seq')
-import { DataTypes, Model, Optional } from "sequelize"
+import { DataTypes, Model } from "sequelize"
 import sequelize from "../seq"
 import User from "./user"
-import Media, { MediaAttributes } from "./media"
+import Media from "./media"
 
-// interface ArticleAttributes {
-//     id: number
-//     title: string
-//     text: string
-//     // delta: JSON
-//     openid?: string | null
-//     userId: number
-//     isRecommend: boolean
-//     isApproved: boolean
-//     deletedAt?: Date | null    
-//     image
-// }
-
-// export interface ArticleCreationAttributes extends Optional<ArticleAttributes, 'id' | 'openid' | 'deletedAt'> {}
-
-class Article extends Model {
+class ArticleModel extends Model {
     public id!: number
-    public title!: string
-    public text!: string
-    // public delta!: JSON
-    public openid?: string | null
-    public userId!: number
-    public isRecommend!: boolean
-    public isApproved!: boolean
-    public deletedAt?: Date | null
+    public title!: string           // 标题
+    public text!: string            // 内容
+    public openid?: string | null   //
+    public userId!: number          //
+    public isRecommend!: boolean    // 是否推荐
+    public isApproved!: boolean     // 是否过审核
+    public deletedAt?: Date | null  
 
     public readonly images?: Media[]
     public readonly createdAt!: Date
     public readonly updatedAt!: Date
 }
 
-Article.init({
+ArticleModel.init({
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -74,7 +56,12 @@ Article.init({
     paranoid: true
 })
 
-User.hasMany(Article, { foreignKey: 'userId', as: 'articles' })
-Article.belongsTo(User, { foreignKey: 'userId', as: 'user' })
+// 用户和文章关系
+User.hasMany(ArticleModel)
+ArticleModel.belongsTo(User)
 
-export default Article
+// 文章和媒体关系
+// ArticleModel.belongsToMany(Media, { through: 'article_media' })
+// Media.belongsToMany(ArticleModel, { through: 'article_media' })
+
+export default ArticleModel

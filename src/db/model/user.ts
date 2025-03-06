@@ -1,9 +1,33 @@
-// const { DataTypes } = require('sequelize')
-// const { sequelize } = require('../seq')
-import { DataTypes } from "sequelize"
+import { DataTypes, Model } from "sequelize"
 import sequelize from "../seq"
 
-const User = sequelize.define('user', {
+class UserModel extends Model {
+    public id!: number
+    public nickname!: string
+    public username!: string
+    public password!: string
+    public avatar!: string
+    public bio!: string
+    public gender!: number
+    public openid!: string
+    public unionid!: string
+    public phone!: string
+    public ipaddress!: string
+    public isAdmin!: boolean
+    public birthday!: string
+
+    public readonly followers?: UserModel[]
+    public readonly following?: UserModel[]
+    public readonly createdAt!: Date
+    public readonly updatedAt!: Date
+}
+
+UserModel.init({
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
     nickname: {
         type: DataTypes.STRING,
         allowNull: false
@@ -19,19 +43,20 @@ const User = sequelize.define('user', {
     bio: DataTypes.TEXT,
     gender: DataTypes.INTEGER,    
     openid: DataTypes.STRING,
-    unionid: { type: DataTypes.STRING, allowNull: true },
+    unionid: DataTypes.STRING,
     phone: DataTypes.STRING,
     ipaddress: DataTypes.STRING,
-    isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
-    birthday: {
-        type: DataTypes.STRING
-    }
+    birthday: DataTypes.STRING,
+    isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false }
 }, {
+    sequelize,
+    modelName: 'user',
     timestamps: true,
+    paranoid: true,
     indexes: [{
         unique: true,
         fields: ['openid']
     }]
 })
 
-export default User
+export default UserModel

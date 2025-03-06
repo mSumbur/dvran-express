@@ -1,100 +1,173 @@
-import { User } from "../db/model"
+import { ArticleModel, UserFollowModel, UserModel } from "../db/model"
 import { nanoid } from "nanoid"
+import sequelize from "../db/seq";
+import { IPageQuery } from "../middleware/validaters";
+import { Op } from "sequelize";
 
-/**
- * 创建用户
- * @param {*} username 
- * @returns 
- */
-export async function createUser(username: string) {
-    const avatarList = [
-        '/dvran-avatar/changjinglu.png',
-        '/dvran-avatar/hudie.png',
-        '/dvran-avatar/laohu.png',
-        '/dvran-avatar/luotuo.png',
-        '/dvran-avatar/mao.png',
-        '/dvran-avatar/mianyang.png',
-        '/dvran-avatar/milu.png',
-        '/dvran-avatar/nainiu.png',
-        '/dvran-avatar/songshu.png',
-        '/dvran-avatar/xiniu.png',
-        '/dvran-avatar/xiongmao.png',
-        '/dvran-avatar/yangtu.png'
-    ]
-    const randomIndex = Math.floor(Math.random() * (avatarList.length - 1 - 0 + 1)) + 0;
-    const avatar = avatarList[randomIndex]
-    const user = await User.create({
-        username,
-        nickname: username,
-        avatar: process.env?.MEDIA_DOMAIN + avatar,
-    })
-    return user
+namespace UserService {    
+    /**
+     * 创建用户
+     * @param {*} username 
+     * @returns 
+     */
+    export async function createUser(options: {
+        nickname?: string    
+        avatar?: string
+    }) {
+        const avatarList = [
+            '/dvran-avatar/changjinglu.png',
+            '/dvran-avatar/hudie.png',
+            '/dvran-avatar/laohu.png',
+            '/dvran-avatar/luotuo.png',
+            '/dvran-avatar/mao.png',
+            '/dvran-avatar/mianyang.png',
+            '/dvran-avatar/milu.png',
+            '/dvran-avatar/nainiu.png',
+            '/dvran-avatar/songshu.png',
+            '/dvran-avatar/xiniu.png',
+            '/dvran-avatar/xiongmao.png',
+            '/dvran-avatar/yangtu.png'
+        ]
+        console.log('options:::', options)
+        const randomIndex = Math.floor(Math.random() * (avatarList.length - 1 - 0 + 1)) + 0;
+        const avatarUrl = avatarList[randomIndex]
+        const user = await UserModel.create({                
+            username: nanoid(),
+            avatar: process.env?.MEDIA_DOMAIN + avatarUrl,
+            ...options
+        })
+        return user
+    }
+
+    /**
+     * 使用openid创建用户
+     * @param {*} openid 
+     */
+    export async function createUserByOpenid(openid: string): Promise<any> {
+        const avatarList = [
+            '/dvran-avatar/changjinglu.png',
+            '/dvran-avatar/hudie.png',
+            '/dvran-avatar/laohu.png',
+            '/dvran-avatar/luotuo.png',
+            '/dvran-avatar/mao.png',
+            '/dvran-avatar/mianyang.png',
+            '/dvran-avatar/milu.png',
+            '/dvran-avatar/nainiu.png',
+            '/dvran-avatar/songshu.png',
+            '/dvran-avatar/xiniu.png',
+            '/dvran-avatar/xiongmao.png',
+            '/dvran-avatar/yangtu.png'
+        ]
+        const randomIndex = Math.floor(Math.random() * (avatarList.length - 1 - 0 + 1)) + 0;
+        const avatar = avatarList[randomIndex]
+        const userCount = await UserModel.count()
+        const user = await UserModel.create({
+            openid,
+            username: nanoid(),
+            nickname: 'ᠬᠡᠷᠡᠭ᠍ᠯᠡᠭ᠍ᠴᠢ ' + userCount,
+            avatar: process.env?.MEDIA_DOMAIN + avatar
+        })
+        return user
+    }
+
+    /**
+     * 使用openid查询用户
+     * @param {*} openid 
+     * @returns 
+     */
+    export async function findUserByOpenid(openid: string) {
+        const result = await UserModel.findOne({
+            where: {
+                openid
+            }
+        })
+        return result
+    }
+
+    /**
+     * 通过用户名模糊搜索用户
+     * @param options 
+     * @returns 
+     */
+    export async function findUsersByNickname(options: {
+        name: string
+    } & IPageQuery) {
+        console.log('worls ', options)
+        const { name } = options
+        const result = await UserModel.findAndCountAll({
+            where: {
+                [Op.or]: [
+                    {
+                        nickname: {
+                            [Op.like]: `%${name}%`
+                        }
+                    }, {
+                        nickname: {
+                            [Op.like]: `%${name.split('').join('%')}%`
+                        }
+                    }
+                ]
+            }
+        })
+        return result
+    }
+
+    /**
+     * 使用id查询用户
+     * @param {number} id 
+     * @returns 
+     */
+    export async function findUserById(id: number) {
+        const result = await UserModel.findByPk(id, {
+            attributes: [
+                ...Object.keys(UserModel.getAttributes()),
+                [sequelize.literal('(SELECT COUNT(*) FROM user_follows WHERE user_follows.followingId = user.id)'), 'followerCount'],
+                [sequelize.literal('(SELECT COUNT(*) FROM user_follows WHERE user_follows.followerId = user.id)'), 'followingCount']
+            ]
+        })
+        return result
+    }
+
+    /**
+     * 通过id更新用户
+     * @param {*} id 
+     * @param {*} value 
+     */
+    export async function updateUserById(id: number, value: Record<string, any>) {
+        const [updatedCount, updatedUsers] = await UserModel.update(value, {
+            where: { id },
+            returning: true, // 返回更新后的记录
+        })    
+        return { updatedCount, updatedUsers }    
+    }
+
+    /**
+     * 获取用户列表
+     * @param options 查询选项
+     * @returns 用户列表
+     */
+    export async function findUsers(options: IPageQuery) {
+        const { page, count } = options
+        const result = await UserModel.findAndCountAll({
+            where: {},
+            offset: (page - 1) * count,        
+            limit: count       
+        })
+        return result
+    }
+
+    /**
+     * 获取用户关注情况 
+     * @param options 选项
+     * @returns 收否关注
+     */
+    export async function findUserFollowStatus(options: {
+        followerId: number
+        followingId: number
+    }): Promise<boolean> {
+        const result = await UserFollowModel.findOne({ where: options })
+        return result ? true : false
+    }
 }
 
-/**
- * 使用openid创建用户
- * @param {*} openid 
- */
-export async function createUserByOpenid(openid: string): Promise<any> {
-    const avatarList = [
-        '/dvran-avatar/changjinglu.png',
-        '/dvran-avatar/hudie.png',
-        '/dvran-avatar/laohu.png',
-        '/dvran-avatar/luotuo.png',
-        '/dvran-avatar/mao.png',
-        '/dvran-avatar/mianyang.png',
-        '/dvran-avatar/milu.png',
-        '/dvran-avatar/nainiu.png',
-        '/dvran-avatar/songshu.png',
-        '/dvran-avatar/xiniu.png',
-        '/dvran-avatar/xiongmao.png',
-        '/dvran-avatar/yangtu.png'
-    ]
-    const randomIndex = Math.floor(Math.random() * (avatarList.length - 1 - 0 + 1)) + 0;
-    const avatar = avatarList[randomIndex]
-    const userCount = await User.count()
-    const user = await User.create({
-        openid,
-        username: nanoid(),
-        nickname: 'ᠬᠡᠷᠡᠭ᠍ᠯᠡᠭ᠍ᠴᠢ ' + userCount,
-        avatar: process.env?.MEDIA_DOMAIN + avatar
-    })
-    return user
-}
-
-/**
- * 使用openid查询用户
- * @param {*} openid 
- * @returns 
- */
-export async function findUserByOpenid(openid: string) {
-    const result = await User.findOne({
-        where: {
-            openid
-        }
-    })
-    return result
-}
-
-/**
- * 使用id查询用户
- * @param {*} id 
- * @returns 
- */
-export async function findUserById(id: number) {
-    const result = await User.findByPk(id)
-    return result
-}
-
-/**
- * 通过id更新用户
- * @param {*} id 
- * @param {*} value 
- */
-export async function updateUserById(id: number, value: Record<string, any>) {
-    const [updatedCount, updatedUsers] = await User.update(value, {
-        where: { id },
-        returning: true, // 返回更新后的记录
-    })    
-    return { updatedCount, updatedUsers }    
-}
+export default UserService

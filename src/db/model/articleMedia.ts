@@ -1,14 +1,14 @@
-import sequelize from "../seq"
-import Article from "./article"
-import Media from "./media"
+import sequelize from "../seq";
+import ArticleModel from "./article";
+import Media from "./media";
 
-const ArticleMedia = sequelize.define(
-    'article_images',
-    {},
-    { timestamps: true }
-)
+const ArticleMediaModel = sequelize.define('article_media', {}, { timestamps: true })
 
-Article.belongsToMany(Media, { through: ArticleMedia, as: 'images', onDelete: 'CASCADE' })
-Media.belongsToMany(Article, { through: ArticleMedia, onDelete: 'CASCADE' })
+ArticleModel.belongsToMany(Media, {
+    through: ArticleMediaModel
+})
+Media.belongsToMany(ArticleModel, {
+    through: ArticleMediaModel
+})
 
-export default ArticleMedia
+export default ArticleMediaModel

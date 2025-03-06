@@ -1,10 +1,11 @@
 import express from "express"
-import { IPageQuery, pageQuery } from "../../middleware/validaters"
-import { findArticlesByText } from "../../services/article"
+import ArticleService from "../../services/article"
+import TagService from "../../services/tag"
 import validate from "../../middleware/validate"
-import { matchedData, query } from "express-validator"
+import { IPageQuery, pageQuery } from "../../middleware/validaters"
+import { query } from "express-validator"
 import { getTextLines } from "../../utils/getTextLines"
-import { findTagsByText } from "../../services/tag"
+import UserService from "../../services/user"
 
 const router = express.Router()
 
@@ -25,7 +26,7 @@ router.get('/search', validate([
     let result = null
     let data = []
     if (t == 'article') {
-        result = await findArticlesByText(q, query as any)
+        result = await ArticleService.findArticlesByText(q, query as any)
         const deviceWidth = parseInt(req.get('DeviceWidth') + '')
         const renderWidth = deviceWidth / 2
         const maxHeight = renderWidth * 1.6
@@ -48,16 +49,20 @@ router.get('/search', validate([
             })
         }        
     } else if (t == 'tag') {
-        result = await findTagsByText(q, query as any)
+        result = await TagService.findTagsByText(q, query as any)
         data = result.rows
     } else if (t == 'user') {
-
+        result = await UserService.findUsersByNickname({
+            name: q,
+            ...query as unknown as IPageQuery            
+        })
+        data = result.rows
     }
     res.json({
         data: data,
+        total: result?.count,
         page: query.page,
-        count: query.count,
-        total: result?.count
+        count: query.count        
     })
 })
 

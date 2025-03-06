@@ -1,9 +1,9 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../seq"
-import Article from "./article"
+import ArticleModel from "./article"
 import User from "./user"
 
-class ArticleCollect extends Model {
+class ArticleCollectModel extends Model {
     public id!: number
     public articleId!: number
     public userId!: number
@@ -11,7 +11,7 @@ class ArticleCollect extends Model {
     public readonly updatedAt!: Date;
 }
 
-ArticleCollect.init({
+ArticleCollectModel.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -21,7 +21,7 @@ ArticleCollect.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: Article,
+            model: ArticleModel,
             key: 'id',
         },
     },
@@ -35,16 +35,16 @@ ArticleCollect.init({
     },
 }, {
     sequelize,
-    modelName: 'article_collects',
+    modelName: 'article_collect',
     timestamps: true
 })
 
 // 文章和 ArticleCollect 之间的一对多关系
-Article.hasMany(ArticleCollect, { foreignKey: 'articleId', as: 'collects' })
-ArticleCollect.belongsTo(Article, { foreignKey: 'articleId' })
+ArticleModel.hasMany(ArticleCollectModel, { foreignKey: 'articleId', as: 'collects' })
+ArticleCollectModel.belongsTo(ArticleModel, { foreignKey: 'articleId' })
 
 // 用户和 ArticleCollect 之间的一对多关系
-User.hasMany(ArticleCollect, { foreignKey: 'userId', as: 'collects' })
-ArticleCollect.belongsTo(User, { foreignKey: 'userId' })
+User.hasMany(ArticleCollectModel, { foreignKey: 'userId', as: 'collects' })
+ArticleCollectModel.belongsTo(User, { foreignKey: 'userId' })
 
-export default ArticleCollect
+export default ArticleCollectModel

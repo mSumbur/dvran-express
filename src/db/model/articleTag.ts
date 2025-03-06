@@ -1,10 +1,10 @@
 import sequelize from "../seq"
-import Article from "./article"
+import ArticleModel from "./article"
 import Tag from "./tag"
 
-const ArticleTag = sequelize.define('article_tags', {}, { timestamps: true })
+const ArticleTagModel = sequelize.define('article_tag', {}, { timestamps: true })
 
-Article.belongsToMany(Tag, { through: ArticleTag })
-Tag.belongsToMany(Article, { through: ArticleTag })
+ArticleModel.belongsToMany(Tag, { through: ArticleTagModel })
+Tag.belongsToMany(ArticleModel, { through: ArticleTagModel })
 
-export default ArticleTag
+export default ArticleTagModel

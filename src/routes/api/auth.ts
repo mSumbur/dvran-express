@@ -6,7 +6,9 @@ import createHttpError from "http-errors"
 import jwt from "jsonwebtoken"
 import axios from "axios"
 import express from "express"
-import { findUserByOpenid, createUserByOpenid } from "../../services/user"
+// import { findUserByOpenid, createUserByOpenid } from "../../services/user"
+import UserService from "../../services/user"
+
 const router = express.Router()
 
 /**
@@ -30,11 +32,11 @@ router.post('/auth/weapp/login', async (req, res) => {
     }
 
     // 查询用户
-    let user: any = await findUserByOpenid(result.data.openid)
+    let user: any = await UserService.findUserByOpenid(result.data.openid)
     console.log(result.data, user)
     // 没有当前用户记录时新建用户
     if (!user) {
-        user = await createUserByOpenid(result.data.openid)
+        user = await UserService.createUserByOpenid(result.data.openid)
     }
 
     const jwtSecret = process.env.JWT_SECRET || ''

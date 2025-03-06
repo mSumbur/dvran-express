@@ -7,24 +7,32 @@
 //     ArticleLike,
 //     ArticleCollect
 // } = require('./model')
-import { User,
-    UserFollow,
-    Article, Tag, Media, Message, Comment,
-    ArticleTag,
-    ArticleMedia,
-    ArticleLike,
-    ArticleCollect } from "./model"
+import { 
+    UserModel,
+    UserFollowModel,
+    ArticleModel,
+    ArticleMediaModel,
+    ArticleTagModel,    
+    ArticleLikeModel,
+    ArticleCollectModel,
+    TagModel, 
+    MediaModel, 
+    MessageModel, 
+    CommentModel
+} from "./model"
+import sequelize from "./seq"
 
 export async function initDB() {
-    await User.sync({ alter: true })
-    await UserFollow.sync({ alter: true })
-    await Article.sync({ alter: true })
-    await Tag.sync({ alter: true })
-    await Media.sync({ alter: true })
-    await Message.sync({ alter: true })
-    await Comment.sync({ alter: true })
-    await ArticleTag.sync({ alter: true })
-    await ArticleMedia.sync({ alter: true })
-    await ArticleLike.sync({ alter: true })
-    await ArticleCollect.sync({ alter: true })
+    await UserModel.sync({ alter: true })
+    await UserFollowModel.sync({ alter: true })
+    await ArticleModel.sync({ alter: true })
+    await TagModel.sync({ alter: true })
+    await MediaModel.sync({ alter: true })
+    await MessageModel.sync({ alter: true })
+    await CommentModel.sync({ alter: true })
+    await ArticleMediaModel.sync({ alter: true })
+    await ArticleTagModel.sync({ alter: true })    
+    await ArticleLikeModel.sync({ alter: true })
+    await ArticleCollectModel.sync({ alter: true })
+    // await sequelize.sync({ force: true }); // 注意：force: true 会删除现有表并重新创建，可能导致数据丢失
 }

@@ -14,9 +14,9 @@ class Message extends Model {
   public id!: number
   public senderId!: number    // 发送者id
   public receiverId!: number  // 接收者id
-  public content!: string     // 内容
-  public relationId!: number  // 链接内容id
-  public type!: number        // 1点赞 2收藏 3关注 4官方
+  public content?: string     // 内容
+  public relationId?: number  // 链接内容id
+  public type!: number        // 1点赞 2收藏 3评论 4关注 5官方 
   public status!: boolean     // 未读（unread）或者已读（read）
   public readonly createdAt!: Date
   public readonly updatedAt!: Date
@@ -38,21 +38,14 @@ Message.init({
   },
   receiverId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
     references: {
       model: User,
       key: 'id',
     },
   },
-  content: {
-    type: DataTypes.STRING(1000)
-  },
-  relationId: {
-    type: DataTypes.INTEGER
-  },
-  type: {
-    type: DataTypes.INTEGER,    
-  },
+  content: DataTypes.STRING(1000),
+  relationId: DataTypes.INTEGER,
+  type: DataTypes.INTEGER,
   status: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,

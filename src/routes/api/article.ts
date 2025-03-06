@@ -4,9 +4,10 @@ import validate from "../../middleware/validate"
 import { body, param } from "express-validator"
 import { pageQuery } from "../../middleware/validaters"
 import { jwtAuth, jwtAuthOption } from "../../middleware/jwtAuth"
-import { ArticleLike, ArticleCollect } from "../../db/model"
+import { ArticleLikeModel, ArticleCollectModel } from "../../db/model"
 import { getTextLines } from "../../utils/getTextLines"
-import { createArticle, findArticlesByRecommend, findArticlesByTagId, updateArticle, findArticleById, deleteArticle, findArticlesByUserLike, findArticlesByUserCollect, findArticles } from "../../services/article"
+// import { createArticle, findArticlesByRecommend, findArticlesByTagId, updateArticle, findArticleById, deleteArticle, findArticlesByUserLike, findArticlesByUserCollect, findArticles } from "../../services/article"
+import ArticleService from "../../services/article"
 import { IPageQuery } from "../../middleware/validaters"
 
 const router = express.Router()
@@ -32,7 +33,7 @@ router.post('/article', jwtAuth, validate([
     body('tagIds').optional().isArray()
 ]), async (req, res, next) => {
     const { userId, openid } = req.auth
-    const article = await createArticle({ ...req.body, openid, userId })
+    const article = await ArticleService.createArticle({ ...req.body, openid, userId })
     res.json({
         code: 200,
         data: article
@@ -56,7 +57,7 @@ router.patch('/article/:id', jwtAuth, validate([
     body('tagNames').optional().isArray(),
     body('tagNames.*').optional().isString().withMessage('Each tagName must be a string')
 ]), async (req, res) => {
-    const article = await updateArticle({ ...req.body, id: req.params.id })
+    const article = await ArticleService.updateArticle({ ...req.body, id: req.params.id })
     res.json({
         code: 200,
         data: article
@@ -75,7 +76,7 @@ router.patch('/article/:id', jwtAuth, validate([
  *              data: 创建的文章            
  */
 router.delete('/article/:id', jwtAuth, async (req, res) => {
-    const result = await deleteArticle(parseInt(req.params.id))
+    const result = await ArticleService.deleteArticle(parseInt(req.params.id))
     res.json({
         code: 200,
         data: result
@@ -95,7 +96,7 @@ router.delete('/article/:id', jwtAuth, async (req, res) => {
  */
 router.get('/articles/recommend', pageQuery, async (req, res, next) => {
     const query: IPageQuery = req.query as unknown as IPageQuery
-    const result = await findArticlesByRecommend(query)
+    const result = await ArticleService.findArticlesByRecommend(query)
 
     const deviceWidth = parseInt(req.get('DeviceWidth') + '')
     const renderWidth = deviceWidth / 2
@@ -132,7 +133,7 @@ router.get('/articles/recommend', pageQuery, async (req, res, next) => {
 
 /**
  * @openapi
- * /article/tag/:id:
+ * /articles/tag/:id:
  *  get:
  *      summary: 获取指定标签的文章列表
  *      tags: [文章]
@@ -143,7 +144,7 @@ router.get('/articles/recommend', pageQuery, async (req, res, next) => {
  */
 router.get('/articles/by/tag/:id', pageQuery, async (req, res) => {
     const query: IPageQuery = req.query as unknown as IPageQuery
-    const result = await findArticlesByTagId(parseInt(req.params.id), query)
+    const result = await ArticleService.findArticlesByTagId(parseInt(req.params.id), query)
     res.json({
         code: 200,
         page: query.page,
@@ -163,7 +164,7 @@ router.get('/articles/by/tag/:id', pageQuery, async (req, res) => {
 router.get('/articles/like', jwtAuth, pageQuery, async (req, res) => {
     const query: IPageQuery = req.query as unknown as IPageQuery
     const userId = req.auth.userId
-    const result = await findArticlesByUserLike(userId, query)
+    const result = await ArticleService.findArticlesByUserLike(userId, query)
 
     const deviceWidth = parseInt(req.get('DeviceWidth') + '')
     const renderWidth = deviceWidth / 2
@@ -206,7 +207,7 @@ router.get('/articles/like', jwtAuth, pageQuery, async (req, res) => {
 router.get('/articles/collect', jwtAuth, pageQuery, async (req, res) => {
     const query: IPageQuery = req.query as unknown as IPageQuery
     const userId = req.auth.userId
-    const result = await findArticlesByUserCollect(userId, query)
+    const result = await ArticleService.findArticlesByUserCollect(userId, query)
     res.json({
         code: 200,
         page: query.page,
@@ -231,15 +232,15 @@ router.get('/article/:id', jwtAuthOption, validate([
     param('id').toInt().isInt().withMessage('id must be an integer')
 ]), async (req, res, next) => {
     const articleId = parseInt(req.params.id)
-    let data = (await findArticleById(articleId))?.dataValues
+    let data = (await ArticleService.findArticleById(articleId))?.dataValues
     if (!data) {
         throw createHttpError(404)
     }
     // 点赞收藏状态
     if (req.auth) {
         const where = { articleId, userId: req.auth.userId }
-        const articleLike = await ArticleLike.findOne({ where })
-        const articleCollect = await ArticleCollect.findOne({ where })
+        const articleLike = await ArticleLikeModel.findOne({ where })
+        const articleCollect = await ArticleCollectModel.findOne({ where })
         Object.assign(data, { isLike: !!articleLike, isCollect: !!articleCollect })
     }
     const deviceWidth = req.get('DeviceWidth')
