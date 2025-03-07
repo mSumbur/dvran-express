@@ -106,6 +106,7 @@ router.get('/tag', validate([
     query('name').isString().withMessage('name must be a string')
 ]), async (req, res) => {
     const { name } = matchedData(req)
+    console.log('name: ', name)
     const tag = await TagService.findTagByName(name)
     res.json({
         code: 200,

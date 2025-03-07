@@ -90,7 +90,9 @@ namespace TagService {
     export async function findTagByName(name: string) {
         return await TagModel.findOne({
             where: {
-                name
+                name: {
+                    [Op.like]: `%${name}%`
+                }
             }
         })
     }
