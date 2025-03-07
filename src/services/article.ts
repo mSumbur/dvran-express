@@ -7,7 +7,7 @@ import MediaService from "./media"
 import { IPageQuery } from "../middleware/validaters"
 import { Op } from "sequelize"
 
-namespace ArticleService {    
+namespace ArticleService {
     /**
      * 创建文章
      * @param {*} param
@@ -95,18 +95,29 @@ namespace ArticleService {
         return result
     }
 
-    export async function findArticlesByTagId(tagId: number, pageQuery: IPageQuery) {
-        const { page, count } = pageQuery
+    /**
+     * 获取指定标签下的文章
+     * @param {object} options 
+     * @returns {object} 文章列表
+     */
+    export async function findArticlesByTagId(options: { tagId: number } & IPageQuery) {
+        const { tagId, page, count } = options
         const offset = (page - 1) * count
         const result = await ArticleModel.findAndCountAll({
             order: [['createdAt', 'DESC']],
             limit: count,
             offset: offset,
-            include: [{
-                model: TagModel,
-                as: 'tags',
-                required: true
-            }]
+            include: [
+                MediaModel, UserModel,
+                {
+                    model: TagModel,
+                    as: 'tags',
+                    required: true,
+                    through: {
+                        attributes: []
+                    }
+                }
+            ]
         })
         return result
     }
@@ -121,7 +132,7 @@ namespace ArticleService {
         const { page, count } = pageQuery
         const offset = (page - 1) * count
         const result = await ArticleModel.findAndCountAll({
-            include: [            
+            include: [
                 {
                     model: ArticleLikeModel,
                     as: 'likes',

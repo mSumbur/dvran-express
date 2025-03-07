@@ -55,7 +55,11 @@ router.delete('/tag/:id', (req, res) => {
 })
 
 /**
- * 获取推荐标签列表
+ * @openapi
+ * /tag/recommend:
+ *  get:
+ *      summary: 获取推荐标签列表
+ *      tags: [标签]
  */
 router.get('/tag/recommend', pageQuery, async (req, res, next) => {
     const query = req.query as unknown as IPageQuery
@@ -71,7 +75,7 @@ router.get('/tag/recommend', pageQuery, async (req, res, next) => {
         total: result.count,
         data: defaultData.concat(result.rows.map((item: any) => ({
             ...item.dataValues,
-            api: '/articles/by/tag/' + item.dataValues.id
+            api: '/articles?tag=' + item.dataValues.id
         })))
     })
 })

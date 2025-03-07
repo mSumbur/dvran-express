@@ -1,7 +1,7 @@
 import express from "express"
 import createHttpError from "http-errors"
 import validate from "../../middleware/validate"
-import { body, param } from "express-validator"
+import { body, matchedData, param, query } from "express-validator"
 import { pageQuery } from "../../middleware/validaters"
 import { jwtAuth, jwtAuthOption } from "../../middleware/jwtAuth"
 import { ArticleLikeModel, ArticleCollectModel } from "../../db/model"
@@ -142,9 +142,18 @@ router.get('/articles/recommend', pageQuery, async (req, res, next) => {
  *              code: 状态码
  *              data: 创建的文章            
  */
-router.get('/articles/by/tag/:id', pageQuery, async (req, res) => {
-    const query: IPageQuery = req.query as unknown as IPageQuery
-    const result = await ArticleService.findArticlesByTagId(parseInt(req.params.id), query)
+router.get('/articles', pageQuery, validate([
+    query('tag').optional().toInt().isInt()
+]), async (req, res) => {    
+    let query = matchedData(req)
+    let result: any = { rows: [], count: 0 }
+    if (req.query.tag) {
+        result = await ArticleService.findArticlesByTagId({
+            tagId: query.tag,
+            page: query.page,
+            count: query.count
+        })
+    }
     res.json({
         code: 200,
         page: query.page,
