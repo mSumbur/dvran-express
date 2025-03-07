@@ -10,7 +10,7 @@ export function getTextLines({
     wrapHeight: number
 }) {
     // 注册字体
-    registerFont('src/assets/fonts/OnonSoninSans.ttf', { family: 'Onon' })
+    registerFont('src/assets/fonts/MSN8102.ttf', { family: 'Onon' })
 
     const canvas = createCanvas(100, wrapHeight)
     const context = canvas.getContext('2d')
