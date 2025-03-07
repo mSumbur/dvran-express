@@ -2,7 +2,7 @@ import express from "express"
 import validate from "../../middleware/validate"
 import TagService from "../../services/tag"
 import { IPageQuery, pageQuery } from "../../middleware/validaters"
-import { body, param } from "express-validator"
+import { body, matchedData, param, query } from "express-validator"
 import { jwtAuth } from "../../middleware/jwtAuth"
 
 const router = express.Router()
@@ -102,10 +102,11 @@ router.get('/tags', pageQuery, async (req, res) => {
  *      summary: 获取标签详情
  *      tags: [标签]
  */
-router.get('/tag/name/:name', validate([
-    param('name').isString().withMessage('name must be a string')
+router.get('/tag', validate([
+    query('name').isString().withMessage('name must be a string')
 ]), async (req, res) => {
-    const tag = await TagService.findTagByName(req.params.name)
+    const { name } = matchedData(req)
+    const tag = await TagService.findTagByName(name)
     res.json({
         code: 200,
         data: tag
