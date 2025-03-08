@@ -45,7 +45,7 @@ namespace ArticleService {
             }
         }
         // @ts-ignore
-        await article.setTags(tagInstances)
+        await article.setTags([...new Set(tagInstances.map(i => i.id))])
 
         // 处理媒体
         const mediaInstances = []
@@ -55,7 +55,6 @@ namespace ArticleService {
             }
             mediaInstances.push(item)
         }
-        console.log(images, mediaInstances.length)
         // @ts-ignore
         await article.setMedia(mediaInstances)
 
