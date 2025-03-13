@@ -40,11 +40,11 @@ ArticleLikeModel.init({
 })
 
 // 文章和点赞记录之间的一对多关系
-ArticleModel.hasMany(ArticleLikeModel, { foreignKey: 'articleId', as: 'likes' })
-ArticleLikeModel.belongsTo(ArticleModel, { foreignKey: 'articleId' })
+ArticleModel.hasMany(ArticleLikeModel, { foreignKey: 'articleId', as: 'likes', onDelete: 'RESTRICT' })
+ArticleLikeModel.belongsTo(ArticleModel, { foreignKey: 'articleId', onDelete: 'RESTRICT' })
 
 // 用户和点赞记录之间的一对多关系
-User.hasMany(ArticleLikeModel, { foreignKey: 'userId', as: 'likes' })
-ArticleLikeModel.belongsTo(User, { foreignKey: 'userId' })
+User.hasMany(ArticleLikeModel, { foreignKey: 'userId', as: 'likes', onDelete: 'RESTRICT' })
+ArticleLikeModel.belongsTo(User, { foreignKey: 'userId', onDelete: 'RESTRICT' })
 
 export default ArticleLikeModel

@@ -37,7 +37,7 @@ router.patch('/tag/:id', jwtAuth, validate([
     param('id').toInt().isInt().withMessage('id must be an intger'),    
     body('name').isString().withMessage('name must be a string'),
     body('image').isString().withMessage('image must be a string'),
-    body('description').optional().isString(),
+    body('description').optional(),
     body('isRecommend').optional().isBoolean()
 ]), async (req, res) => {
     const id = parseInt(req.params.id)

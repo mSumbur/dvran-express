@@ -8,7 +8,7 @@ namespace ActionService {
      * @param {*} articleId 
      * @param {*} type 
      */
-    export async function createArticleAction(articleId: number, userId: number, type: ActionType) {
+    export async function createArticleAction(articleId?: number, userId?: number, type?: ActionType) {
         const Model = type == 'like' ? ArticleLikeModel : ArticleCollectModel
         const action = await Model.create({ userId, articleId })
         return action

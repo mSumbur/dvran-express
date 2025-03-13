@@ -40,11 +40,11 @@ ArticleCollectModel.init({
 })
 
 // 文章和 ArticleCollect 之间的一对多关系
-ArticleModel.hasMany(ArticleCollectModel, { foreignKey: 'articleId', as: 'collects' })
-ArticleCollectModel.belongsTo(ArticleModel, { foreignKey: 'articleId' })
+ArticleModel.hasMany(ArticleCollectModel, { foreignKey: 'articleId', as: 'collects', onDelete: 'RESTRICT' })
+ArticleCollectModel.belongsTo(ArticleModel, { foreignKey: 'articleId', onDelete: 'RESTRICT' })
 
 // 用户和 ArticleCollect 之间的一对多关系
-User.hasMany(ArticleCollectModel, { foreignKey: 'userId', as: 'collects' })
-ArticleCollectModel.belongsTo(User, { foreignKey: 'userId' })
+User.hasMany(ArticleCollectModel, { foreignKey: 'userId', as: 'collects', onDelete: 'RESTRICT' })
+ArticleCollectModel.belongsTo(User, { foreignKey: 'userId', onDelete: 'RESTRICT' })
 
 export default ArticleCollectModel

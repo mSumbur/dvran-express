@@ -11,7 +11,7 @@ const router = express.Router()
 router.get('/messages', jwtAuth, pageQuery, async (req, res, next) => {
     const { userId } = req.auth
     const pageQuery = req.query as unknown as IPageQuery
-    const result = await MessageService.findMessagesByUserId(userId, pageQuery)
+    const result = await MessageService.findMessagesByUserId({ userId, ...pageQuery })
     res.json({
         code: 200,
         data: result.rows,

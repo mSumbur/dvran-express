@@ -7,11 +7,9 @@ import express from "express"
 import validate from "../../middleware/validate"
 import createHttpError from "http-errors"
 import MessageService from "../../services/message"
-import FollowService from "../../services/follow"
 import ActionService from "../../services/action"
 import ArticleService from "../../services/article"
 import { matchedData, param } from "express-validator"
-import { pageQuery } from "../../middleware/validaters"
 import { jwtAuth } from "../../middleware/jwtAuth"
 
 const router = express.Router()
@@ -30,23 +28,26 @@ router.post('/article/:articleId/:type', jwtAuth, validate([
     const { userId } = req.auth
     const { articleId, type } = matchedData(req)
     const article = await ArticleService.findArticleById(articleId)
-    if (!article) {
-        throw createHttpError(400)
-    }
-    const result = await ActionService.createArticleAction(articleId, userId, type as ActionService.ActionType)
-    const msgRecord = await MessageService.findMessage({ senderId: userId, relationId: articleId, type: type == 'like' ? 1 : 2 })
-    // 发送过消息就不再发
-    if (!msgRecord) {
-        await MessageService.createArticleLikeMessage({
-            senderId: userId,
-            relationId: articleId,
-            receiverId: article.userId
+    if (article) {
+        const result = await ActionService.createArticleAction(article.id, userId, type as ActionService.ActionType)
+        const msgType = type == 'like' ? 1 : 2
+        const msgRecord = await MessageService.findMessage({ senderId: userId, relationId: articleId, type: msgType })
+        // 发送过消息就不再发
+        if (!msgRecord) {
+            await MessageService.createArticleMessage({
+                senderId: userId,
+                relationId: articleId,
+                receiverId: article.userId,
+                type: msgType
+            })
+        }
+        res.json({
+            code: 200,
+            data: result
         })
-    }
-    res.json({
-        code: 200,
-        data: result
-    })    
+    } else {
+        throw createHttpError(400)
+    }        
 })
 
 /**
@@ -71,19 +72,6 @@ router.delete('/article/:articleId/:type', jwtAuth, validate([
         code: 200,
         data: result
     })
-})
-
-/**
- * @openapi
- * /article/:id/:type:
- *  get:
- *      summary: 获取点赞收藏列表
- *      tags: [文章]
- */
-router.get('/article/:id/:type', jwtAuth, pageQuery, validate([
-    param('id').toInt().isInt().withMessage('id is not valid')
-]), async (req, res, next) => {
-
 })
 
 export default router

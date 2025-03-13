@@ -3,51 +3,54 @@ import { IPageQuery } from "../middleware/validaters"
 
 namespace MessageService {
     /**
-    * 创建消息
-    */
+     * 创建消息
+     * @param {MessageModel} value 消息体
+     * @returns 消息
+     */
     export async function createMessage(value: MessageModel) {
         const msg = await MessageModel.create({ ...value, status: 0 })
         return msg
     }
 
     /**
-     * 创建点赞文章消息
-     * @param senderId
-     * @param receiverId
-     * @param relationId 
-     * @returns 
+     * 创建文章点赞收藏消息
+     * @param senderId 发送人id
+     * @param receiverId 接收值id
+     * @param relationId 关联关系id(比如文章id)
+     * @param type 1点赞 2收藏
+     * @returns 消息
      */
-    export async function createArticleLikeMessage(data: {
+    export async function createArticleMessage(data: {
         senderId: number
         receiverId: number
         relationId: number
+        type: number
     }) {
-        const msg = await MessageModel.create({ ...data, type: 1 })
+        const msg = await MessageModel.create(data)
         return msg
     }
 
     /**
      * 创建收藏消息
-     * @param senderId 
-     * @param receiverId 
-     * @param relationId 
-     * @returns 
+     * @param senderId 发送人id
+     * @param receiverId 接收值id
+     * @param relationId 关联关系id(比如文章id)
+     * @returns 消息
      */
-    export async function createArticleCollectMessage(senderId: number, receiverId: number, relationId: number) {
-        const msg = await MessageModel.create({
-            senderId,
-            receiverId,
-            relationId,
-            messageType: 'article-collect'
-        })
-        return msg
-    }
+    // export async function createArticleCollectMessage(data: {
+    //     senderId: number
+    //     receiverId: number
+    //     relationId: number
+    // }) {
+    //     const msg = await MessageModel.create({ ...data, type: 2 })
+    //     return msg
+    // }
 
     /**
-     * 获取消息记录
-     * @param userId 
-     * @param relationId 
-     * @returns 
+     * 获取消息记录(通过用户id和关系id)
+     * @param userId 用户id
+     * @param relationId 关系id
+     * @returns 消息
      */
     export async function findMessage(options: { senderId: number, relationId: number, type: number }) {
         const { senderId, relationId, type } = options
@@ -59,13 +62,13 @@ namespace MessageService {
     }
 
     /**
-     * 获取所有消息
-     * @param userId 
-     * @param pageQuery 
-     * @returns 
+     * 获取所有消息（通过用户id）
+     * @param userId 用户id
+     * @param pageQuery 分页
+     * @returns 消息列表
      */
-    export async function findMessagesByUserId(userId: number, pageQuery: IPageQuery) {
-        const { page, count } = pageQuery
+    export async function findMessagesByUserId(options: { userId: number } & IPageQuery) {
+        const { userId, page, count } = options
         const offset = (page - 1) * count
         const result = await MessageModel.findAndCountAll({
             where: { receiverId: userId },

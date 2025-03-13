@@ -30,6 +30,9 @@ namespace TagService {
         const { page, count } = pageQuery
         const offset = (page - 1) * count
         const result = await TagModel.findAndCountAll({
+            where: {
+                isRecommend: true
+            },
             order: [['createdAt', 'DESC']],
             limit: count,
             offset: offset
