@@ -19,7 +19,7 @@ import { initDB } from "./src/db"
 const swaggerOptions = {
   swaggerDefinition: {
     info: {
-      title: 'Dvran Express API',
+      title: 'Dvran 后端 API',
       description: 'API documentation for the Express application',
       version: '1.0.0',
     },
@@ -69,7 +69,7 @@ async function bootstrap() {
   // return app.listen(port, () => console.log("start success ", port))
 }
 
-bootstrap()
+// bootstrap()
 
 const server = app.listen(port, () => console.log("start success ", port))
 
