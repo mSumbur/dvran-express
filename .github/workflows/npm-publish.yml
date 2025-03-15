@@ -35,5 +35,6 @@ jobs:
             cd $DEPLOY_DIR || exit 1
             git pull origin main || exit 2  # 拉取最新代码
             npm install || exit 3  # 安装依赖
-            pm2 restart dvran-express || pm2 start npm --name dvran-express -- run start || exit 4  # 使用 pm2 重启应用
+            bash /www/server/nodejs/vhost/scripts/dvran小程序后端.sh
+            # pm2 restart dvran-express || pm2 start npm --name dvran-express -- run start || exit 4  # 使用 pm2 重启应用
           EOF
