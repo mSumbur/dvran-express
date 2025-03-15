@@ -19,7 +19,7 @@ import { initDB } from "./src/db"
 const swaggerOptions = {
   swaggerDefinition: {
     info: {
-      title: 'Dvran后端API(v1.0.0)',
+      title: 'Dvran后端API',
       description: 'API documentation for the Express application',
       version: '1.0.0',
     },
