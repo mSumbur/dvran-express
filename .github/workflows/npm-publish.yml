@@ -38,7 +38,10 @@ jobs:
             # 找到并杀掉 ts-node 进程
             PID=$(pgrep -f "ts-node index.ts") 
             if [[ -n "$PID" ]]; then
-                kill -9 $PID || exit 4
+              kill -9 $PID || exit 4
+              while pgrep -f "ts-node index.ts" >/dev/null; do
+                sleep 0.5  # 每 0.5 秒检查一次进程是否还在
+              done
             fi
             # 启动新的
             bash /www/server/nodejs/vhost/scripts/dvran小程序后端.sh || exit 4
