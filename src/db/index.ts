@@ -18,7 +18,9 @@ import {
     TagModel, 
     MediaModel, 
     MessageModel, 
-    CommentModel
+    CommentModel,
+    NodeModel,
+    MdayModel
 } from "./model"
 import sequelize from "./seq"
 
@@ -34,5 +36,7 @@ export async function initDB() {
     await ArticleTagModel.sync({ alter: true })    
     await ArticleLikeModel.sync({ alter: true })
     await ArticleCollectModel.sync({ alter: true })
+    await MdayModel.sync({ alter: true })
+    await NodeModel.sync({ alter: true })
     // await sequelize.sync({ force: true }); // 注意：force: true 会删除现有表并重新创建，可能导致数据丢失
 }

@@ -31,6 +31,10 @@ router.post('/article', jwtAuth, validate([
     body('tagNames.*').optional().isString().withMessage('Each tagName must be a string'),
     body('tagIds').optional().isArray()
 ]), async (req, res, next) => {
+    res.json({
+        code: 500
+    })
+    return
     const { userId, openid } = req.auth
     const article = await ArticleService.createArticle({ ...req.body, openid, userId })
     res.json({

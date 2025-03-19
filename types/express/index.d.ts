@@ -9,7 +9,8 @@ declare global {
         interface Request {
             auth: {
                 userId: number,
-                openid: string
+                openid: string,
+                isAdmin: boolean
             }
         }
     }

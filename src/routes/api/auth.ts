@@ -42,7 +42,7 @@ router.post('/auth/weapp/login', async (req, res) => {
     const jwtSecret = process.env.JWT_SECRET || ''
     // @ts-ignore
     const token = jwt.sign(
-        { userId: user.id, openid: user.openid }, 
+        { userId: user.id, openid: user.openid, isAdmin: user.isAdmin }, 
         jwtSecret,
         { expiresIn: 60 * 60 * 24 * 7 + 's' }
     )

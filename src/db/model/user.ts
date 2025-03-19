@@ -3,18 +3,18 @@ import sequelize from "../seq"
 
 class UserModel extends Model {
     public id!: number
-    public nickname!: string
-    public username!: string
-    public password!: string
-    public avatar!: string
-    public bio!: string
-    public gender!: number
-    public openid!: string
+    public nickname!: string    // 昵称
+    public username!: string    // 用户名
+    public password!: string    // 密码
+    public avatar!: string      // 头像
+    public bio!: string         // 简介
+    public gender!: number      // 性别
+    public openid!: string      
     public unionid!: string
-    public phone!: string
-    public ipaddress!: string
-    public isAdmin!: boolean
-    public birthday!: string
+    public phone!: string       // 电话
+    public ipaddress!: string   // ip地址
+    public isAdmin!: boolean    // 是否管理
+    public birthday!: string    // 生日
 
     public readonly followers?: UserModel[]
     public readonly following?: UserModel[]
