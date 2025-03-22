@@ -14,9 +14,12 @@ const router = express.Router()
  *      summary: 获取笔记详情
  *      tags: [扩展功能-笔记]
  */
-router.get('/note/:id', jwtAuth, async (req, res) => {
+router.get('/note/:id', jwtAuth, validate([
+    param('id').toInt().isInt().withMessage('id must be an integer')
+]), async (req, res) => {
     const { id } = matchedData(req)
     const note = await NoteService.findNoteById(id)
+    console.log('id: ', id, note)
     res.json({
         code: note ? 200 : 404,
         data: note

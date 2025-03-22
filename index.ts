@@ -69,7 +69,7 @@ async function bootstrap() {
   // return app.listen(port, () => console.log("start success ", port))
 }
 
-// bootstrap()
+bootstrap()
 
 const server = app.listen(port, () => console.log("start success ", port))
 
