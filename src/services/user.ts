@@ -13,24 +13,10 @@ namespace UserService {
     export async function createUser(options: {
         nickname?: string    
         avatar?: string
+        gender?: number
     }) {
-        const avatarList = [
-            '/dvran-avatar/changjinglu.png',
-            '/dvran-avatar/hudie.png',
-            '/dvran-avatar/laohu.png',
-            '/dvran-avatar/luotuo.png',
-            '/dvran-avatar/mao.png',
-            '/dvran-avatar/mianyang.png',
-            '/dvran-avatar/milu.png',
-            '/dvran-avatar/nainiu.png',
-            '/dvran-avatar/songshu.png',
-            '/dvran-avatar/xiniu.png',
-            '/dvran-avatar/xiongmao.png',
-            '/dvran-avatar/yangtu.png'
-        ]
-        console.log('options:::', options)
-        const randomIndex = Math.floor(Math.random() * (avatarList.length - 1 - 0 + 1)) + 0;
-        const avatarUrl = avatarList[randomIndex]
+        const randomIndex = Math.floor(Math.random() * (6 - 1 - 0 + 1)) + 0;
+        const avatarUrl = (options.gender == 1 ? 'female-' : 'male-') + randomIndex + '.png'
         const user = await UserModel.create({                
             username: nanoid(),
             avatar: process.env?.MEDIA_DOMAIN + avatarUrl,
@@ -44,22 +30,8 @@ namespace UserService {
      * @param {*} openid 
      */
     export async function createUserByOpenid(openid: string): Promise<any> {
-        const avatarList = [
-            '/dvran-avatar/changjinglu.png',
-            '/dvran-avatar/hudie.png',
-            '/dvran-avatar/laohu.png',
-            '/dvran-avatar/luotuo.png',
-            '/dvran-avatar/mao.png',
-            '/dvran-avatar/mianyang.png',
-            '/dvran-avatar/milu.png',
-            '/dvran-avatar/nainiu.png',
-            '/dvran-avatar/songshu.png',
-            '/dvran-avatar/xiniu.png',
-            '/dvran-avatar/xiongmao.png',
-            '/dvran-avatar/yangtu.png'
-        ]
-        const randomIndex = Math.floor(Math.random() * (avatarList.length - 1 - 0 + 1)) + 0;
-        const avatar = avatarList[randomIndex]
+        const randomIndex = Math.floor(Math.random() * (6 - 1 - 0 + 1)) + 0;
+        const avatar = 'male-' + randomIndex + '.png'
         const userCount = await UserModel.count()
         const user = await UserModel.create({
             openid,
@@ -92,7 +64,6 @@ namespace UserService {
     export async function findUsersByNickname(options: {
         name: string
     } & IPageQuery) {
-        console.log('worls ', options)
         const { name } = options
         const result = await UserModel.findAndCountAll({
             where: {

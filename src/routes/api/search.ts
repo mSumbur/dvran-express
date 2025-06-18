@@ -33,8 +33,8 @@ router.get('/search', validate([
         const minHeight = renderWidth
         for (let i = 0; i < result.rows.length; i++) {
             const item = result.rows[i].dataValues
-            const calcHeight = item.images?.length
-                ? renderWidth * item.images?.[0].height / item.images?.[0].width
+            const calcHeight = item.media?.length
+                ? renderWidth * item.media?.[0].height / item.media?.[0].width
                 : renderWidth * 1.2
             const renderHeight = calcHeight > maxHeight ? maxHeight : calcHeight < minHeight ? minHeight : calcHeight
             const lines = await getTextLines({

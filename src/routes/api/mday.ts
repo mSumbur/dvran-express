@@ -14,7 +14,9 @@ const router = express.Router()
  *      summary: 获取日期详情
  *      tags: [扩展功能-日期]
  */
-router.get('/mday/:id', jwtAuth, async (req, res) => {
+router.get('/mday/:id', jwtAuth, validate(
+    param('id').toInt().isInt().withMessage('id must be an integer')
+), async (req, res) => {
     const { id } = matchedData(req)
     const mday = await MdayService.findMdayById(id)
     res.json({

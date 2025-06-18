@@ -42,23 +42,22 @@ router.get('/comments/:id', pageQuery, async (req, res) => {
     const pageQuery = req.query as unknown as IPageQuery
     const articleId = parseInt(req.params.id)
     const result = await CommentService.findComments({ ...pageQuery, articleId })
-
-    const deviceHeight = req.get('DeviceHeight')
-    const data = []
-    for (let i = 0; i < result.rows.length; i++) {
-        const item = result.rows[i].dataValues
-        data.push({
-            ...item,
-            textLines: await getTextLines({
-                text: item.content,
-                textSize: 16,
-                wrapHeight: parseInt(deviceHeight + '') * 0.66 - 70
-            })
-        })
-    }
+    // const deviceHeight = req.get('DeviceHeight')
+    // const data = []
+    // for (let i = 0; i < result.rows.length; i++) {
+    //     const item = result.rows[i].dataValues
+    //     data.push({
+    //         ...item,
+    //         textLines: await getTextLines({
+    //             text: item.content,
+    //             textSize: 16,
+    //             wrapHeight: parseInt(deviceHeight + '') * 0.66 - 70
+    //         })
+    //     })
+    // }
     res.json({
         code: 200,
-        data,
+        data: result.rows,
         total: result.count,
         page: pageQuery.page,
         count: pageQuery.count

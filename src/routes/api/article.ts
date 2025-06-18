@@ -31,10 +31,10 @@ router.post('/article', jwtAuth, validate([
     body('tagNames.*').optional().isString().withMessage('Each tagName must be a string'),
     body('tagIds').optional().isArray()
 ]), async (req, res, next) => {
-    res.json({
-        code: 500
-    })
-    return
+    // res.json({
+    //     code: 500
+    // })
+    // return
     const { userId, openid } = req.auth
     const article = await ArticleService.createArticle({ ...req.body, openid, userId })
     res.json({
@@ -109,19 +109,20 @@ router.get('/articles/recommend', pageQuery, async (req, res, next) => {
     const data = []
     for (let i = 0; i < result.rows.length; i++) {
         const item = result.rows[i].dataValues
-        const calcHeight = item.images?.length
-            ? renderWidth * item.images?.[0].height / item.images?.[0].width
+        const calcHeight = item.media?.length
+            ? renderWidth * item.media?.[0].height / item.media?.[0].width
             : renderWidth * 1.2
         const renderHeight = calcHeight > maxHeight ? maxHeight : calcHeight < minHeight ? minHeight : calcHeight
         const lines = await getTextLines({
-            text: item.text,
+            text: item.text.substring(0, 100),
             textSize: 16,
             wrapHeight: renderHeight
         })
         data.push({
             ...item,
             lines: lines.slice(0, 2),
-            moreLines: lines.length > 2
+            moreLines: item.text.length > 100,
+            renderHeight
         })
     }
 
@@ -186,8 +187,8 @@ router.get('/articles/like', jwtAuth, pageQuery, async (req, res) => {
     const data = []
     for (let i = 0; i < result.rows.length; i++) {
         const item = result.rows[i].dataValues
-        const calcHeight = item.images?.length
-            ? renderWidth * item.images?.[0].height / item.images?.[0].width
+        const calcHeight = item.media?.length
+            ? renderWidth * item.media?.[0].height / item.media?.[0].width
             : renderWidth * 1.2
         const renderHeight = calcHeight > maxHeight ? maxHeight : calcHeight < minHeight ? minHeight : calcHeight
         data.push({

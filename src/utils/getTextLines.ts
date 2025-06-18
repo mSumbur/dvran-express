@@ -1,5 +1,70 @@
 import { createCanvas, registerFont } from "canvas"
 
+function splitHTMLByWidth(html: string, ctx: any, maxWidth: number) {
+    const tagStack: any = [];
+    const lines = [];
+    let currentLine = '';
+    let currentText = '';
+    let currentWidth = 0;
+
+    const tokens = [...html.matchAll(/(<[^>]+>|[^<]+)/g)].map(m => m[0]);
+
+    const getTagName = (tag: any) => tag.replace(/[<\/>]/g, '').split(' ')[0];
+    const isOpeningTag = (tag: any) => /^<[^/!][^>]*>$/.test(tag);
+    const isClosingTag = (tag: any) => /^<\/[^>]+>$/.test(tag);
+
+    const openTagsToString = () => tagStack.join('');
+    const closeTagsToString = () =>
+        tagStack.slice().reverse().map((tag: any) => {
+            const name = getTagName(tag);
+            return `</${name}>`;
+        }).join('');
+
+    for (const token of tokens) {
+        if (token.startsWith('<')) {
+            if (isOpeningTag(token)) {
+                tagStack.push(token);
+                currentLine += token;
+            } else if (isClosingTag(token)) {
+                const last = tagStack.pop();
+                currentLine += token;
+            } else {
+                // handle comment/self-closing etc. if needed
+                currentLine += token;
+            }
+        } else {
+            for (const char of token) {
+                const charWidth = ctx.measureText(char).width;
+                if (currentWidth + charWidth > maxWidth) {
+                    // wrap line
+                    const fullLine =
+                        openTagsToString() + currentText + closeTagsToString();
+                    lines.push(fullLine);
+
+                    // reset state
+                    currentText = char;
+                    currentWidth = charWidth;
+                    currentLine = openTagsToString();
+                } else {
+                    currentText += char;
+                    currentWidth += charWidth;
+                }
+            }
+        }
+    }
+
+    // push remaining line
+    if (currentText) {
+        const fullLine =
+            openTagsToString() + currentText + closeTagsToString();
+        lines.push(fullLine);
+    }
+
+    return lines;
+}
+
+
+
 export function getTextLines({
     text,
     textSize = 16,
@@ -27,10 +92,16 @@ export function getTextLines({
     const lines = []
     let currentLine = ''
     context.font = textSize + 'px Onon'
+
+    const lii = splitHTMLByWidth(text, context, wrapHeight);
+    console.log('lisss', lii, text)
+    return lii
+
     words.forEach(word => {
         // const testLine = currentLine ? `${currentLine} ${word}` : word        
         const testLine = currentLine ? currentLine + word : word
         const width = context.measureText(testLine).width
+        // const width = measureRichText(context, word)
         if (width <= wrapHeight) {
             currentLine = testLine
             if (wrapHeight == 200) {
