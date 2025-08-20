@@ -82,7 +82,7 @@ namespace ArticleService {
             order: [['createdAt', 'DESC']],
             limit: count,
             offset: offset,
-            include: [TagModel, MediaModel, UserModel]
+            include: [TagModel, MediaModel]
         })
         return result
     }
@@ -107,7 +107,7 @@ namespace ArticleService {
             limit: count,
             offset: offset,
             include: [
-                MediaModel, UserModel,
+                MediaModel,
                 {
                     model: TagModel,
                     as: 'tags',
@@ -137,8 +137,7 @@ namespace ArticleService {
                     as: 'likes',
                     required: true
                 },
-                MediaModel,
-                UserModel
+                MediaModel
             ],
             order: [['createdAt', 'DESC']],
             limit: count,
@@ -163,7 +162,6 @@ namespace ArticleService {
                     as: 'collects',
                     required: true
                 },
-                UserModel,
                 MediaModel
             ],
             order: [['createdAt', 'DESC']],
@@ -197,7 +195,7 @@ namespace ArticleService {
                     }
                 ]
             },
-            include: [MediaModel, UserModel],
+            include: [MediaModel],
             order: [['createdAt', 'DESC']],
             limit: count,
             offset: offset
@@ -219,7 +217,7 @@ namespace ArticleService {
                 [sequelize.literal('(SELECT COUNT(*) FROM article_collects WHERE article_collects.articleId = articles.id)'), 'collectCount'],
                 [sequelize.literal('(SELECT COUNT(*) FROM comments WHERE comments.articleId = articles.id)'), 'commentCount']
             ],
-            include: [MediaModel, UserModel]
+            include: [MediaModel]
         })
     }
 }

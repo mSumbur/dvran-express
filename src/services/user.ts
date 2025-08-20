@@ -1,23 +1,25 @@
-import { ArticleModel, UserFollowModel, UserModel } from "../db/model"
+import { UserModel } from "../db/model"
 import { nanoid } from "nanoid"
 import sequelize from "../db/seq";
 import { IPageQuery } from "../middleware/validaters";
 import { Op } from "sequelize";
+import { findAndCountAll } from "../utils/findAndCountAll";
+import { Model } from "mongoose";
 
-namespace UserService {    
+namespace UserService {
     /**
      * 创建用户
      * @param {*} username 
      * @returns 
      */
     export async function createUser(options: {
-        nickname?: string    
+        nickname?: string
         avatar?: string
         gender?: number
     }) {
         const randomIndex = Math.floor(Math.random() * (6 - 1 - 0 + 1)) + 0;
         const avatarUrl = (options.gender == 1 ? 'female-' : 'male-') + randomIndex + '.png'
-        const user = await UserModel.create({                
+        const user = await UserModel.create({
             username: nanoid(),
             avatar: process.env?.MEDIA_DOMAIN + avatarUrl,
             ...options
@@ -30,9 +32,10 @@ namespace UserService {
      * @param {*} openid 
      */
     export async function createUserByOpenid(openid: string): Promise<any> {
-        const randomIndex = Math.floor(Math.random() * (6 - 1 - 0 + 1)) + 0;
-        const avatar = 'male-' + randomIndex + '.png'
-        const userCount = await UserModel.count()
+        // const randomIndex = Math.floor(Math.random() * (6 - 1 - 0 + 1)) + 0;
+        const randomIndex = Math.floor(Math.random() * 6) + 1
+        const avatar = '/male-' + randomIndex + '.png'
+        const userCount = await UserModel.countDocuments()
         const user = await UserModel.create({
             openid,
             username: nanoid(),
@@ -48,11 +51,7 @@ namespace UserService {
      * @returns 
      */
     export async function findUserByOpenid(openid: string) {
-        const result = await UserModel.findOne({
-            where: {
-                openid
-            }
-        })
+        const result = await UserModel.findOne({ openid })
         return result
     }
 
@@ -65,37 +64,30 @@ namespace UserService {
         name: string
     } & IPageQuery) {
         const { name } = options
-        const result = await UserModel.findAndCountAll({
-            where: {
-                [Op.or]: [
-                    {
-                        nickname: {
-                            [Op.like]: `%${name}%`
-                        }
-                    }, {
-                        nickname: {
-                            [Op.like]: `%${name.split('').join('%')}%`
-                        }
-                    }
-                ]
-            }
-        })
+        const query = {
+            $or: [
+                { nickname: { $regex: name, $options: 'i' } },
+                { nickname: { $regex: name.split('').join('.*'), $options: 'i' } }
+            ]
+        }
+        const result = await findAndCountAll(UserModel, query)
         return result
     }
 
     /**
      * 使用id查询用户
      * @param {number} id 
-     * @returns 
+     * @returns
      */
     export async function findUserById(id: number) {
-        const result = await UserModel.findByPk(id, {
-            attributes: [
-                ...Object.keys(UserModel.getAttributes()),
-                [sequelize.literal('(SELECT COUNT(*) FROM user_follows WHERE user_follows.followingId = user.id)'), 'followerCount'],
-                [sequelize.literal('(SELECT COUNT(*) FROM user_follows WHERE user_follows.followerId = user.id)'), 'followingCount']
-            ]
-        })
+        // const result = await UserModel.findByPk(id, {
+        //     attributes: [
+        //         ...Object.keys(UserModel.getAttributes()),
+        //         [sequelize.literal('(SELECT COUNT(*) FROM user_follows WHERE user_follows.followingId = user.id)'), 'followerCount'],
+        //         [sequelize.literal('(SELECT COUNT(*) FROM user_follows WHERE user_follows.followerId = user.id)'), 'followingCount']
+        //     ]
+        // })
+        const result = await UserModel.findById(id)
         return result
     }
 
@@ -105,11 +97,10 @@ namespace UserService {
      * @param {*} value 
      */
     export async function updateUserById(id: number, value: Record<string, any>) {
-        const [updatedCount, updatedUsers] = await UserModel.update(value, {
-            where: { id },
-            returning: true, // 返回更新后的记录
-        })    
-        return { updatedCount, updatedUsers }    
+        const user = await UserModel.findByIdAndUpdate(
+            id, value, { new: true }
+        )
+        return user
     }
 
     /**
@@ -119,10 +110,9 @@ namespace UserService {
      */
     export async function findUsers(options: IPageQuery) {
         const { page, count } = options
-        const result = await UserModel.findAndCountAll({
-            where: {},
-            offset: (page - 1) * count,        
-            limit: count       
+        const result = findAndCountAll(UserModel, {}, {
+            page: page,
+            count: count
         })
         return result
     }
@@ -136,8 +126,9 @@ namespace UserService {
         followerId: number
         followingId: number
     }): Promise<boolean> {
-        const result = await UserFollowModel.findOne({ where: options })
-        return result ? true : false
+        // const result = await UserFollowModel.findOne({ where: options })
+        // return result ? true : false
+        return true
     }
 }
 

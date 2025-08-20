@@ -13,4 +13,6 @@ const tagSchema = createUGCSchema<ITag>({
     description: String
 })
 
-export const TagModel = model<ITag>('tags', tagSchema)
+const TagModel = model<ITag>('tags', tagSchema)
+
+export default TagModel

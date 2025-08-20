@@ -1,6 +1,6 @@
 import express from "express"
 import validate from "../../middleware/validate"
-import TagService from "../../services/tag"
+// import TagService from "../../services/tag"
 import { IPageQuery, pageQuery } from "../../middleware/validaters"
 import { body, matchedData, param, query } from "express-validator"
 import { jwtAuth } from "../../middleware/jwtAuth"
@@ -19,10 +19,10 @@ router.post('/tag', validate([
     body('image').isString().withMessage('image must be a string'),
     body('isRecommend').optional().isBoolean()
 ]), async (req, res) => {
-    const tag = await TagService.createTag(req.body)
+    // const tag = await TagService.createTag(req.body)
     res.json({
         code: 200,
-        data: tag
+        // data: tag
     })
 })
 
@@ -41,10 +41,10 @@ router.patch('/tag/:id', jwtAuth, validate([
     body('isRecommend').optional().isBoolean()
 ]), async (req, res) => {
     const id = parseInt(req.params.id)
-    const tag = await TagService.updateTag(id, req.body)
+    // const tag = await TagService.updateTag(id, req.body)
     res.json({
         code: 200,
-        data: tag
+        // data: tag
     })
 })
 
@@ -64,10 +64,15 @@ router.delete('/tag/:id', (req, res) => {
  */
 router.get('/tag/recommend', pageQuery, async (req, res, next) => {
     const query = req.query as unknown as IPageQuery
-    const result = await TagService.findTagsByRecommend(query)
+    // const result = await TagService.findTagsByRecommend(query)
+    const result = {
+        count: 0,
+        rows: []
+    }
     const defaultData = [
-        { id: 'd1', name: 'ᠲᠠᠭᠠᠭᠰᠠᠨ ᠨᠡᠢᠳᠡᠯᠡᠯ', api: '/articles/recommend' },
-        { id: 'd2', name: 'ᠲᠡᠪᠰᠢᠭᠦᠯᠬᠦ ᠨᠡᠢᠳᠡᠯᠡᠯ', api: '/articles/recommend' },
+        { id: 'd1', name: 'ᠬᠠᠯᠠᠮᠰᠢᠯ ᠨᠡᠢᠳᠡᠯᠡᠯ ᡂᠠ', api: '/posts/recommend' },
+        { id: 'd2', name: 'ᠨᠡᠢᠳᠡᠯᠡᠯ ᠊ᠤᠨ\nᠲᠠᠯᠠᠪᠠᠢ', api: '/posts/feeds' },
+        { id: 'd3', name: 'ᠲᠠᠭᠠᠭᠰᠠᠨ ᠬᠦᠮᠦᠰ ᠡᠴᠡ', api: '/posts/follow' },        
     ]
     res.json({
         code: 200,
@@ -90,11 +95,11 @@ router.get('/tag/recommend', pageQuery, async (req, res, next) => {
  */
 router.get('/tags', pageQuery, async (req, res) => {
     const query = req.query as unknown as IPageQuery
-    const result = await TagService.findTags(query)
+    // const result = await TagService.findTags(query)
     res.json({
         code: 200,
-        data: result.rows,
-        total: result.count,
+        // data: result.rows,
+        // total: result.count,
         page: query.page,
         count: query.count        
     })
@@ -112,10 +117,10 @@ router.get('/tag', validate([
 ]), async (req, res) => {
     const { name } = matchedData(req)
     console.log('name: ', name)
-    const tag = await TagService.findTagByName(name)
+    // const tag = await TagService.findTagByName(name)
     res.json({
         code: 200,
-        data: tag
+        // data: tag
     })
 })
 
@@ -129,10 +134,10 @@ router.get('/tag', validate([
 router.get('/tag/:id', validate([
     param('id').toInt().isInt().withMessage('id must be an integer')
 ]), async (req, res) => {
-    const tag = await TagService.findTagById(parseInt(req.params.id))
+    // const tag = await TagService.findTagById(parseInt(req.params.id))
     res.json({
         code: 200,
-        data: tag
+        // data: tag
     })
 })
 

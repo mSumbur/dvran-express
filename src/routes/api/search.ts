@@ -1,11 +1,10 @@
 import express from "express"
-import ArticleService from "../../services/article"
-import TagService from "../../services/tag"
 import validate from "../../middleware/validate"
-import { IPageQuery, pageQuery } from "../../middleware/validaters"
-import { query } from "express-validator"
-import { getTextLines } from "../../utils/getTextLines"
-import UserService from "../../services/user"
+import calcPostTextLine from "../../utils/calcPostTextLine"
+import { matchedData, query } from "express-validator"
+import { pageQuery } from "../../middleware/validaters"
+import { PostModel, UserModel } from "../../db/model"
+import { findAndCountAll } from "../../utils/findAndCountAll"
 
 const router = express.Router()
 
@@ -16,53 +15,50 @@ const router = express.Router()
  *      summary: 搜索接口
  *      tags: [搜索]
  */
-router.get('/search', validate([
+router.get('/search', pageQuery, validate([
     query('q').isString().withMessage('q must be a string'),
     query('t').isString().withMessage('t must be a string')
-]), pageQuery, async (req, res) => {
+]), async (req, res) => {
+    const mData = matchedData(req)
     const query = req.query
     const q = query.q as string
     const t = query.t
-    let result = null
+    let result: any = null
     let data = []
     if (t == 'article') {
-        result = await ArticleService.findArticlesByText(q, query as any)
-        const deviceWidth = parseInt(req.get('DeviceWidth') + '')
-        const renderWidth = deviceWidth / 2
-        const maxHeight = renderWidth * 1.6
-        const minHeight = renderWidth
-        for (let i = 0; i < result.rows.length; i++) {
-            const item = result.rows[i].dataValues
-            const calcHeight = item.media?.length
-                ? renderWidth * item.media?.[0].height / item.media?.[0].width
-                : renderWidth * 1.2
-            const renderHeight = calcHeight > maxHeight ? maxHeight : calcHeight < minHeight ? minHeight : calcHeight
-            const lines = await getTextLines({
-                text: item.text,
-                textSize: 16,
-                wrapHeight: renderHeight
-            })
-            data.push({
-                ...item,
-                lines: lines.slice(0, 2),
-                moreLines: lines.length > 2
-            })
-        }        
+        // 普通模糊匹配;每个字符之间插入 .*，实现宽松匹配
+        const query = {
+            $or: [
+                { text: { $regex: new RegExp(q, 'i') } },
+                { text: { $regex: new RegExp(q.split('').join('.*'), 'i') } }
+            ]
+        }
+        result = await findAndCountAll(PostModel, query, { 
+            ...mData, 
+            populate: [
+                { path: 'media' },
+                { path: 'user' }
+            ] 
+        })
+        data = await calcPostTextLine(req, result.data)
     } else if (t == 'tag') {
-        result = await TagService.findTagsByText(q, query as any)
+        // result = await TagService.findTagsByText(q, query as any)
         data = result.rows
     } else if (t == 'user') {
-        result = await UserService.findUsersByNickname({
-            name: q,
-            ...query as unknown as IPageQuery            
-        })
-        data = result.rows
+        const query = {
+            $or: [
+                { nickname: { $regex: q, $options: 'i' } },
+                { nickname: { $regex: q.split('').join('.*'), $options: 'i' } }
+            ]
+        }
+        result = await findAndCountAll(UserModel, query, { ...mData })
+        data = result.data
     }
     res.json({
         data: data,
-        total: result?.count,
+        total: result?.total,
         page: query.page,
-        count: query.count        
+        count: query.count
     })
 })
 

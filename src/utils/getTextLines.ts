@@ -93,9 +93,9 @@ export function getTextLines({
     let currentLine = ''
     context.font = textSize + 'px Onon'
 
-    const lii = splitHTMLByWidth(text, context, wrapHeight);
-    console.log('lisss', lii, text)
-    return lii
+    // const lii = splitHTMLByWidth(text, context, wrapHeight);
+    // console.log('lisss', lii, text)
+    // return lii
 
     words.forEach(word => {
         // const testLine = currentLine ? `${currentLine} ${word}` : word        

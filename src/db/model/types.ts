@@ -1,10 +1,11 @@
-import { Schema, SchemaOptions } from "mongoose"
+import { Query, Schema, SchemaOptions } from "mongoose"
 
 export interface IBaseModel {
     _id?: string
-    createdAt?: Date
-    updatedAt?: Date
-    isDeleted?: boolean
+    createdAt: Date
+    updatedAt: Date
+    isDeleted: boolean
+    deletedAt?: Date
 }
 
 export interface IUGCModel {
@@ -29,20 +30,32 @@ export enum IAuditStatus {
 }
 
 export function createSchema<T>(fields: Record<string, any>, options?: SchemaOptions): Schema {
-    return new Schema<T>(
+    const schema: Schema = new Schema<T>(
         {
             ...fields,
             isDeleted: { type: Boolean, default: false },
+            deletedAt: { type: Date }
         },
-        { 
-            ...options,
-            timestamps: true 
-        }
+        {
+            timestamps: true,
+            ...(options || {})
+        } as any
     )
+
+    schema.pre(/^find/, function (next) {
+        const query = this as Query<any, any>
+        const filter = query.getFilter()
+        if (!filter.isDeleted) {
+            query.where({ isDeleted: false })
+        }
+        next()
+    })
+
+    return schema
 }
 
 export function createUGCSchema<T>(fields: Record<string, any>, options?: SchemaOptions): Schema {
-    return new Schema<T & IUGCModel>(
+    const schema = new Schema<T & IUGCModel>(
         {
             ...fields,
             auditStatus: { type: Number, enum: Object.values(IAuditStatus) },
@@ -54,11 +67,23 @@ export function createUGCSchema<T>(fields: Record<string, any>, options?: Schema
             featuredBy: { type: Schema.Types.ObjectId, ref: 'users' },
             isPinned: { type: Boolean, default: false },
             isPublic: { type: Boolean, default: false },
-            isDeleted: { type: Boolean, default: false }
+            isDeleted: { type: Boolean, default: false },
+            deletedAt: { type: Date }
         },
-        { 
-            ...options,
-            timestamps: true 
-        }
+        {
+            timestamps: true,
+            ...(options || {})
+        } as any
     )
+
+    schema.pre(/^find/, function (next) {
+        const query = this as Query<any, any>
+        const filter = query.getFilter()
+        if (!filter.isDeleted) {
+            query.where({ isDeleted: false })
+        }
+        next()
+    })
+
+    return schema
 }

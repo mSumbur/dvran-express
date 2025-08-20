@@ -1,38 +1,73 @@
 import express from "express"
-import MessageService from "../../services/message"
+import createHttpError from "http-errors"
+import MessageModel from "../../db/model/message.model"
+import validate from "../../middleware/validate"
 import { IPageQuery, pageQuery } from "../../middleware/validaters"
 import { jwtAuth } from "../../middleware/jwtAuth"
+import { findAndCountAll } from "../../utils/findAndCountAll"
+import { matchedData, param } from "express-validator"
 
 const router = express.Router()
 
 /**
- * 分页获取当前用户信息
+ * @openapi
+ * /messages
+ *  get:
+ *      summary: 分页获取当前用户信息
+ *      tags: [消息]
  */
-router.get('/messages', jwtAuth, pageQuery, async (req, res, next) => {
-    const { userId } = req.auth
-    const pageQuery = req.query as unknown as IPageQuery
-    const result = await MessageService.findMessagesByUserId({ userId, ...pageQuery })
+router.get('/messages', jwtAuth, pageQuery, async (req, res) => {
+    const mData = matchedData(req)
+    const { page, count, total, data } = await findAndCountAll(MessageModel,
+        {
+            receiverId: req.auth.userId
+        },
+        {
+            ...(mData as IPageQuery),
+            populate: { path: 'sender' },
+            sort: { createdAt: -1 }            
+        }
+    )
     res.json({
         code: 200,
-        data: result.rows,
-        page: pageQuery.page,
-        count: pageQuery.count,
-        total: result.count
+        page, count, total, data
     })
 })
 
 /**
  * 已读信息
  */
-router.patch('/message/:id', async (req, res, next) => {
-    
+router.get('/message/:id', jwtAuth, validate([
+    param('id').isMongoId().withMessage('Invalid id')
+]), async (req, res) => {
+    const mData = matchedData(req)
+    const message = await MessageModel.findById(mData.id)
+    if (!message || message?.receiverId.toString() != req.auth.userId.toString()) {
+        throw createHttpError(403)
+    }
+    message.isRead = true
+    await message.save()
+    res.json({
+        code: 200,
+        data: message
+    })
 })
 
 /**
  * 删除指定信息
  */
-router.delete('/message/:id', async (req, res, next) => {
-
+router.delete('/message/:id', jwtAuth, validate([
+    param('id').isMongoId().withMessage('Invalid id')
+]), async (req, res) => {
+    const mData = matchedData(req)
+    const message = await MessageModel.findById(mData.id)
+    if (!message || message.receiverId.toString() != req.auth.userId.toString()) {
+        throw createHttpError(403)
+    }
+    await MessageModel.findByIdAndDelete(mData.id)
+    res.json({
+        code: 200
+    })
 })
 
 export default router

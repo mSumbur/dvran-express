@@ -72,12 +72,12 @@ namespace MessageService {
         const offset = (page - 1) * count
         const result = await MessageModel.findAndCountAll({
             where: { receiverId: userId },
-            include: [{
-                model: UserModel,
-                as: 'sender',
-                required: false,
-                attributes: ['id', 'nickname', 'avatar']
-            }],
+            // include: [{
+            //     model: UserModel,
+            //     as: 'sender',
+            //     required: false,
+            //     attributes: ['id', 'nickname', 'avatar']
+            // }],
             limit: count,
             offset: offset
         })
@@ -85,25 +85,25 @@ namespace MessageService {
         const relationIds = result.rows.map((msg) => msg.relationId)
 
         // 批量查询所有关联数据
-        const relatedData = await ArticleModel.findAll({
-            where: { id: relationIds },
-            include: { model: MediaModel, attributes: ['url'] },
-            attributes: ['id', 'text']
-        })
+        // const relatedData = await ArticleModel.findAll({
+        //     where: { id: relationIds },
+        //     include: { model: MediaModel, attributes: ['url'] },
+        //     attributes: ['id', 'text']
+        // })
 
         // 将关联数据映射到消息中
-        const relatedDataMap = relatedData.reduce((acc: any, item) => {
-            acc[item.id] = item.toJSON()
-            return acc
-        }, {})
+        // const relatedDataMap = relatedData.reduce((acc: any, item) => {
+        //     acc[item.id] = item.toJSON()
+        //     return acc
+        // }, {})
 
-        const messagesWithRelation = result.rows.map((msg) => ({
-            ...msg.toJSON(),
-            relatedData: relatedDataMap[msg.relationId || ''] || null
-        }))
+        // const messagesWithRelation = result.rows.map((msg) => ({
+        //     ...msg.toJSON(),
+        //     relatedData: relatedDataMap[msg.relationId || ''] || null
+        // }))
 
         return {
-            rows: messagesWithRelation,
+            // rows: messagesWithRelation,
             count: result.count
         }
     }

@@ -6,17 +6,18 @@ import morgan from "morgan"
 import "express-async-errors" // 错误处理插件
 import dotenv from "dotenv"
 import swaggerJSDoc from 'swagger-jsdoc'
-import swaggerUi from 'swagger-ui-express'
+import swaggerUi, { SwaggerOptions } from 'swagger-ui-express'
 
 // env
 dotenv.config({
   path: path.resolve(__dirname, './env/.env.' + process.env.NODE_ENV)
 })
 
-import { initDB } from "./src/db"
+import { connectDB } from "./src/db"
+// import { initDB } from "./src/db"
 
 // Swagger 配置
-const swaggerOptions = {
+const swaggerOptions: SwaggerOptions = {
   swaggerDefinition: {
     info: {
       title: 'Dvran后端API',
@@ -35,7 +36,7 @@ app.use(cors())
 app.use(morgan("tiny"))
 // app.use(jwtAuth)
 
-// 引入路由
+// 引入api路由
 const routesPath = path.join(__dirname, './src/routes/api')
 fs.readdirSync(routesPath).forEach(file => {
   if (file.endsWith('.ts')) {
@@ -62,15 +63,18 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   })
 })
 
-const port = process.env.PORT || 3333
+const port = process.env.PORT 
 
-async function bootstrap() {
-  await initDB()
+// async function bootstrap() {
+  // await initDB()
   // return app.listen(port, () => console.log("start success ", port))
-}
+// }
 
 // bootstrap()
 
-const server = app.listen(port, () => console.log("start success ", port))
+const server = app.listen(port, async () => {
+  await connectDB()
+  console.log("start success ", port)
+})
 
 export { app, server }

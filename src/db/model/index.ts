@@ -1,17 +1,20 @@
-export { default as UserModel } from "./user"
-export { default as ArticleModel } from "./article"
-export { default as ArticleMediaModel } from "./articleMedia"
-export { default as TagModel } from "./tag"
-export { default as MediaModel } from "./media"
-export { default as ArticleTagModel } from "./articleTag"
-export { default as ArticleLikeModel } from "./articleLike"
-export { default as ArticleCollectModel } from "./articleCollect"
-export { default as UserFollowModel } from "./userFollow"
-export { default as MessageModel } from "./message"
-export { default as CommentModel } from "./comment"
+export { default as UserModel } from "./user.model"
+export { default as UserActionModel } from "./user-action.model"
+
+export { default as MediaModel } from "./media.model"
+export { default as TagModel } from "./tag.model"
+export { default as MessageModel } from "./message.model"
+
+export { PostModel } from "./post.model"
+export { default as PostCommentModel } from "./post-comment.model"
+export { default as PostActionModel } from "./post-action.model"
+
+// export { default as UserFollowModel } from "./userFollow"
+
+
 // 扩展功能
-export { default as NodeModel } from "./note"
-export { default as MdayModel } from "./mday"
+// export { default as NodeModel } from "./note"
+// export { default as MdayModel } from "./mday"
 
 /**
  * 

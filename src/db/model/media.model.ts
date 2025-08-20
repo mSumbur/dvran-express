@@ -11,26 +11,30 @@ export interface IMedia extends IBaseModel {
     url: string
     width: number
     height: number
+    size: number
     userId: Types.ObjectId
-    postId: Types.ObjectId
+    // postId: Types.ObjectId
 }
 
 const mediaSchema = createSchema<IMedia>({
     type: {
         type: Number,
-        enum: Object.values(IMediaType)
+        enum: IMediaType
     },
     url: String,
     width: Number,
     height: Number,
+    size: Number,
     userId: {
         type: Schema.Types.ObjectId,
         ref: 'users'
     },
-    postId: {
-        type: Schema.Types.ObjectId,
-        ref: 'posts'
-    }
+    // postId: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'posts'
+    // }
 })
 
-export const MediaModel = model<IMedia>('media', mediaSchema)
+const MediaModel = model<IMedia>('media', mediaSchema)
+
+export default MediaModel
