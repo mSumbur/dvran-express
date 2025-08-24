@@ -90,7 +90,6 @@ router.get('/comments/:id', pageQuery, validate([
             populate: { path: 'user' }
         }
     )
-    console.log('woirlll', data.length)
     const deviceHeight = req.get('DeviceHeight')
     const list = []
     for (let i = 0; i < data.length; i++) {

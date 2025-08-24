@@ -74,7 +74,6 @@ const port = process.env.PORT
 
 const server = app.listen(port, async () => {
   await connectDB()
-  console.log("start success ", port)
 })
 
 export { app, server }

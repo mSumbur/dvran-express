@@ -5,7 +5,7 @@ import calcPostTextLine from "../../utils/calcPostTextLine"
 import { body, matchedData, param, query } from "express-validator"
 import { pageQuery } from "../../middleware/validaters"
 import { jwtAuth, jwtAuthOption } from "../../middleware/jwtAuth"
-import { PostModel, MediaModel, PostActionModel, MessageModel, UserActionModel } from "../../db/model"
+import { PostModel, MediaModel, PostActionModel, MessageModel, UserActionModel, TagModel } from "../../db/model"
 import { getTextLines } from "../../utils/getTextLines"
 import { IPageQuery } from "../../middleware/validaters"
 import { findAndCountAll } from "../../utils/findAndCountAll"
@@ -245,11 +245,12 @@ router.get('/posts/collect', jwtAuth, pageQuery, async (req, res) => {
  */
 router.get('/post/:id', jwtAuthOption, validate([
     param('id').isMongoId().withMessage('Invalid id'),
-    query('delta').optional().isBoolean().withMessage('Invalid query')
+    query('select').optional().isString().withMessage('Invalid select')
 ]), async (req, res, next) => {
     const mData = matchedData(req)
-    console.log('query::: ', mData.delta)
-    let data = await PostModel.findById(mData.id).populate('user media').select(mData.delta ? '+delta' : '').lean()
+    const select = mData.select ? mData.select.split(',').map((i: string) => '+' + i).join(' ') : ''
+    console.log('select:::', select)
+    let data = await PostModel.findById(mData.id).populate('user media').select(select).lean()
     if (!data || data.isDeleted) {
         throw createHttpError(404)
     }
@@ -286,22 +287,32 @@ router.get('/post/:id', jwtAuthOption, validate([
  *      tags: [帖子]         
  */
 router.post('/post', jwtAuth, validate([
-    // body('id').optional().isString().trim().withMessage('id must be a string'),
-    body('text').isString().trim().withMessage('text must be a string'),
+    body('text').isString().trim().withMessage('text must be a string'),    
+    body('delta').isArray().withMessage('Invalid delta'),
     body('media').optional().isArray(),
-    body('tagNames').optional().isArray(),
-    body('tagNames.*').optional().isString().withMessage('each tagName must be a string'),
-    body('tagIds').optional().isArray(),
-    body('delta').optional().isArray()
+    // body('tagNames').optional().isArray(),
+    // body('tagNames.*').optional().isString().withMessage('each tagName must be a string'),
+    body('tags').optional().isArray()
 ]), async (req, res, next) => {
     const mData = matchedData(req)
     const media = await MediaModel.insertMany(mData.media)
+    const tagList = []
+    for (let i = 0; i < mData.tags?.length; i++) {
+        let tag = mData.tags[i]
+        if (!tag._id) {
+            tag = await TagModel.create({
+                name: tag.name
+            })
+        }
+        tagList.push(tag._id)
+    }
     const post = await PostModel.create({
         text: mData.text,
         delta: mData.delta,
         openid: req.auth.openid,
         userId: req.auth.userId,
         media,
+        tags: tagList
     })
     res.json({
         code: 200,
@@ -335,7 +346,6 @@ router.post('/post/:id/:action', jwtAuth, validate([
         { new: true, upsert: true }
     ).lean()
     // 添加消息
-    console.log('创建消息：：：', mData.action == 'like' ? IMessageType.like : IMessageType.collect)
     const msgFilter = {
         senderId: req.auth.userId,
         receiverId: post.userId,
@@ -346,7 +356,6 @@ router.post('/post/:id/:action', jwtAuth, validate([
         { $setOnInsert: msgFilter },
         { upsert: true }
     )
-    console.log('创建消息end')
     res.json({
         code: 200,
         data: {}

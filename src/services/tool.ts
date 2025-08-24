@@ -85,8 +85,6 @@ export function createGalpicTextImage({
     if (currentLine) {
         lineList.push(currentLine)
     }
-    console.log(textList)
-    console.log(lineList)
     // 计算画布宽高
     renderHeight = maxHeight        
     renderWidth = renderFontSize * lineHeight * lineList.length

@@ -4,6 +4,9 @@ import validate from "../../middleware/validate"
 import { IPageQuery, pageQuery } from "../../middleware/validaters"
 import { body, matchedData, param, query } from "express-validator"
 import { jwtAuth } from "../../middleware/jwtAuth"
+import { findAndCountAll } from "../../utils/findAndCountAll"
+import { TagModel } from "../../db/model"
+import createHttpError from "http-errors"
 
 const router = express.Router()
 
@@ -51,8 +54,12 @@ router.patch('/tag/:id', jwtAuth, validate([
 /**
  * 删除标签
  */
-router.delete('/tag/:id', (req, res) => {
-
+router.delete('/tag/:id', jwtAuth, validate([
+    param('id').isMongoId().withMessage('Invalid ID')
+]), (req, res) => {
+    res.json({
+        code: 200
+    })
 })
 
 /**
@@ -94,20 +101,18 @@ router.get('/tag/recommend', pageQuery, async (req, res, next) => {
  *      tags: [标签]
  */
 router.get('/tags', pageQuery, async (req, res) => {
-    const query = req.query as unknown as IPageQuery
-    // const result = await TagService.findTags(query)
+    const mData = matchedData(req)
+    const { page, count, total, data } = await findAndCountAll(TagModel, {}, mData)
     res.json({
         code: 200,
-        // data: result.rows,
-        // total: result.count,
-        page: query.page,
-        count: query.count        
+        page, count, 
+        total, data
     })
 })
 
 /**
  * @openapi
- * /tag/name/:name:
+ * /tag:
  *  get:
  *      summary: 获取标签详情
  *      tags: [标签]
@@ -115,12 +120,17 @@ router.get('/tags', pageQuery, async (req, res) => {
 router.get('/tag', validate([
     query('name').isString().withMessage('name must be a string')
 ]), async (req, res) => {
-    const { name } = matchedData(req)
-    console.log('name: ', name)
-    // const tag = await TagService.findTagByName(name)
+    const mData = matchedData(req)
+    console.log('name:::', mData.name)
+    const tag = await TagModel.findOne({
+        name: mData.name
+    })
+    if (!tag) {
+        throw createHttpError(404)
+    }
     res.json({
         code: 200,
-        // data: tag
+        data: tag
     })
 })
 
@@ -132,12 +142,16 @@ router.get('/tag', validate([
  *      tags: [标签]
  */
 router.get('/tag/:id', validate([
-    param('id').toInt().isInt().withMessage('id must be an integer')
+    param('id').isMongoId().withMessage('Invalid id')
 ]), async (req, res) => {
-    // const tag = await TagService.findTagById(parseInt(req.params.id))
+    const mData = matchedData(req)
+    const tag = await TagModel.findById(mData.id)
+    if (!tag) {
+        throw createHttpError(404)
+    }
     res.json({
         code: 200,
-        // data: tag
+        data: tag
     })
 })
 

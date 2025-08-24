@@ -3,7 +3,7 @@ import validate from "../../middleware/validate"
 import calcPostTextLine from "../../utils/calcPostTextLine"
 import { matchedData, query } from "express-validator"
 import { pageQuery } from "../../middleware/validaters"
-import { PostModel, UserModel } from "../../db/model"
+import { PostModel, TagModel, UserModel } from "../../db/model"
 import { findAndCountAll } from "../../utils/findAndCountAll"
 
 const router = express.Router()
@@ -20,9 +20,8 @@ router.get('/search', pageQuery, validate([
     query('t').isString().withMessage('t must be a string')
 ]), async (req, res) => {
     const mData = matchedData(req)
-    const query = req.query
-    const q = query.q as string
-    const t = query.t
+    const q = mData.q as string
+    const t = mData.t
     let result: any = null
     let data = []
     if (t == 'article') {
@@ -43,7 +42,14 @@ router.get('/search', pageQuery, validate([
         data = await calcPostTextLine(req, result.data)
     } else if (t == 'tag') {
         // result = await TagService.findTagsByText(q, query as any)
-        data = result.rows
+        const query = {
+            $or: [
+                { name: { $regex: new RegExp(q, 'i') } },
+                { name: { $regex: new RegExp(q.split('').join('.*'), 'i') } }
+            ]
+        }
+        result = await findAndCountAll(TagModel, query, mData)
+        data = result.data
     } else if (t == 'user') {
         const query = {
             $or: [
@@ -57,8 +63,8 @@ router.get('/search', pageQuery, validate([
     res.json({
         data: data,
         total: result?.total,
-        page: query.page,
-        count: query.count
+        page: result.page,
+        count: result.count
     })
 })
 
