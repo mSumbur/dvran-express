@@ -34,7 +34,7 @@ router.get('/features', jwtAuthOption, async (req, res) => {
 router.get('/feature/test', async (req, res) => {
     res.json({
         code: 200,
-        message: 'success'
+        message: 'run on ' + process.env.ENV
     })
 })
 
