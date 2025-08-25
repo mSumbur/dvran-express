@@ -31,54 +31,10 @@ router.get('/features', jwtAuthOption, async (req, res) => {
     })
 })
 
-router.get('/syncolddata', async (req, res) => {
-    const resp = await axios.get('https://app.dvran.cn/api/post?select[0]=delta&select[1]=text')
-    const data = []
-    if (resp?.data?.code == 200) {
-        const list = resp.data.data || []
-        for (let i = 0; i < list.length; i++) {
-            const post = list[i]
-            let user = await UserModel.findOne({
-                openid: post.user?.openid
-            })
-            if (!user) {
-                user = new UserModel()
-                user.openid = post.user.openid
-                user.nickname = post.user?.nickName
-                user.bio = post.user?.description
-                user.avatar = process.env?.MEDIA_DOMAIN + '/' + post.user?.avatar
-                await user.save() 
-            }
-            const imageList = []
-            for (let j = 0; j < post.images?.length; j++) {
-                let image = await MediaModel.findOne({
-                    url: process.env?.MEDIA_DOMAIN + '/' + post.images[j].name
-                })
-                if (!image) {
-                    image = new MediaModel()
-                    image.url = process.env?.MEDIA_DOMAIN + '/' + post.images[j].name
-                    image.width = post.images[j].width
-                    image.height = post.images[j].height
-                    image.userId = post.user._id
-                    image.size = 0
-                    image.type = 0
-                    await image.save()
-                }
-                imageList.push(image)
-            }
-            const newPost = await new PostModel()
-            newPost.userId = new Types.ObjectId(user._id)
-            newPost.openid = user.openid
-            newPost.media = imageList.map(i => i._id) as any
-            newPost.text = post.text
-            newPost.delta = post.delta?.map((i: any) => ({ value: i.insert })) as any
-            await newPost.save()
-            data.push(newPost)
-        }
-    }
+router.get('/feature/test', async (req, res) => {
     res.json({
         code: 200,
-        data
+        message: 'success'
     })
 })
 
