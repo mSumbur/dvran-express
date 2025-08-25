@@ -44,6 +44,6 @@ jobs:
             #   done
             # fi
             # 启动新的
-            bash /www/server/nodejs/vhost/scripts/dvran小程序后端.sh || exit 4
+            bash /www/server/nodejs/vhost/scripts/dvran_express.sh || exit 4
             # pm2 restart dvran-express || pm2 start npm --name dvran-express -- run start || exit 4  # 使用 pm2 重启应用
           EOF
