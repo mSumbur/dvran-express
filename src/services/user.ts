@@ -1,10 +1,7 @@
 import { UserModel } from "../db/model"
 import { nanoid } from "nanoid"
-import sequelize from "../db/seq";
 import { IPageQuery } from "../middleware/validaters";
-import { Op } from "sequelize";
 import { findAndCountAll } from "../utils/findAndCountAll";
-import { Model } from "mongoose";
 
 namespace UserService {
     /**
@@ -32,14 +29,13 @@ namespace UserService {
      * @param {*} openid 
      */
     export async function createUserByOpenid(openid: string): Promise<any> {
-        // const randomIndex = Math.floor(Math.random() * (6 - 1 - 0 + 1)) + 0;
         const randomIndex = Math.floor(Math.random() * 6) + 1
         const avatar = '/male-' + randomIndex + '.png'
         const userCount = await UserModel.countDocuments()
         const user = await UserModel.create({
             openid,
             username: nanoid(),
-            nickname: 'ᠬᠡᠷᠡᠭ᠍ᠯᠡᠭ᠍ᠴᠢ ' + userCount,
+            nickname: 'ᠬᠡᠷᠡᠭᠯᠡᠭᠴᠢ ' + userCount,
             avatar: process.env?.MEDIA_DOMAIN + avatar
         })
         return user
